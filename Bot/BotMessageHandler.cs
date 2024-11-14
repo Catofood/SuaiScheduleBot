@@ -5,7 +5,7 @@ namespace Bot;
 
 internal static class BotMessageHandler
 {
-    internal static async Task<string> HandleTextMessage(Message message)
+    internal static async Task<string> HandleTextMessage(Message message, List<StudyScheduleItem> studyScheduleItems)
     {
         var messageText = message.Text;
         var chatId = message.Chat.Id;  // Получаем ID чата
@@ -17,7 +17,6 @@ internal static class BotMessageHandler
         {
             if (message.Chat.Id.ToString().Equals("427905464"))
             {
-                var schedules = await ScheduleManager.ForceUpdateSchedule();
                 response = "Done. Amount of classes is: "+ schedules.Count.ToString();
             }
             else

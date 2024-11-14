@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bot", "Bot\Bot.csproj", "{D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary", "ClassLibrary\ClassLibrary.csproj", "{52274943-99D9-418B-ACFC-4BA1FEC3D0A1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{30D9D512-C8C6-42FF-ACE3-ABFE3E6283FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{52274943-99D9-418B-ACFC-4BA1FEC3D0A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52274943-99D9-418B-ACFC-4BA1FEC3D0A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52274943-99D9-418B-ACFC-4BA1FEC3D0A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30D9D512-C8C6-42FF-ACE3-ABFE3E6283FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30D9D512-C8C6-42FF-ACE3-ABFE3E6283FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30D9D512-C8C6-42FF-ACE3-ABFE3E6283FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30D9D512-C8C6-42FF-ACE3-ABFE3E6283FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

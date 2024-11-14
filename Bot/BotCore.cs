@@ -8,6 +8,7 @@ using Telegram.Bot.Types.Enums; // Перечисления (например, �
 namespace Bot;
 class BotCore
 {
+    private List<StudyScheduleItem> studyScheduleItems;
     static async Task Main()
     {
         string token = Token.GetToken();
@@ -33,9 +34,12 @@ class BotCore
         );
 
         // Получаем информацию о боте и выводим имя в консоль
-        var botInfo = await botClient.GetMeAsync();
+        var botInfo = await botClient.GetMe();
         Console.WriteLine($"Bot {botInfo.Username} is running...");
-
+        
+        // Обновляем расписание
+        var studyScheduleItems = ScheduleManager.ForceUpdateSchedule();
+        
         // Ждем нажатия Enter для завершения работы
         Console.ReadLine();
         cts.Cancel();  // Отменяем получение обновлений и завершаем выполнение
@@ -52,14 +56,10 @@ class BotCore
         if (!string.IsNullOrEmpty(update.Message.Text))
         {
             // Формируем ответ пользователю в зависимости от содержания сообщения
-            var response = await BotMessageHandler.HandleTextMessage(update.Message);
+            var response = await BotMessageHandler.HandleTextMessage(update.Message, studyScheduleItem);
             // Отправляем пользователю сформированный ответ
             await botClient.SendMessage(chatId, response, cancellationToken: cancellationToken);
         }
-        
-        
-        
-        
     }
 
     // Обработчик ошибок

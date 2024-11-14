@@ -2,5 +2,5 @@ namespace ClassLibrary;
 
 public static class Token
 {
-    public static string GetToken() => File.ReadAllText("C:\\Users\\Catofood\\Desktop\\token.txt");
+    public static string GetToken() => "7526536865:AAH8jmZcBpclriEcUXfTUCBGZA45JldJT94";
 }

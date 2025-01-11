@@ -2,5 +2,5 @@ namespace ClassLibrary;
 
 public static class Token
 {
-    public static string GetToken() => "7526536865:AAH8jmZcBpclriEcUXfTUCBGZA45JldJT94";
+    public static string GetToken() => "8063115516:AAFqDW5a_jwMxdxA5O-McTYksRwwguJQad4";
 }

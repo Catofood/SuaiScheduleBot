@@ -9,16 +9,18 @@ namespace ClassLibrary;
 //
 // Hardcoded ASF omggg
 //
-public static class ScheduleManager
+public class ScheduleManager
 {
+    public List<ScheduleItem> Schedule;
+    
     private const string RelativePathToScheduleXml = "Schedules";
     private const string ScheduleFileName = "schedule.xml";
     private const string ScheduleDownloadUrl = "https://guap.ru/rasp/current.xml";
 
-    private static async Task<List<StudyScheduleItem>> ParseScheduleAsync(string filePath)
+    private static async Task<List<ScheduleItem>> ParseScheduleAsync(string filePath)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        var studySchedules = new List<StudyScheduleItem>();
+        var studySchedules = new List<ScheduleItem>();
         using (var streamReader = new StreamReader(filePath, Encoding.GetEncoding("windows-1251")))
         {
             var doc = await Task.Run(() => XDocument.Load(streamReader));
@@ -26,7 +28,7 @@ public static class ScheduleManager
             foreach (var study in studies)
                 if (study != null)
                 {
-                    var studyScheduleItem = new StudyScheduleItem();
+                    var studyScheduleItem = new ScheduleItem();
 
                     int? dayOfWeekNumber = null;
                     {
@@ -59,16 +61,15 @@ public static class ScheduleManager
             return studySchedules;
         }
     }
-
-    public static string GetScheduleFilePath()
+    private string GetScheduleFilePath()
     {
         return Path.Combine(AppContext.BaseDirectory, RelativePathToScheduleXml, ScheduleFileName);
     }
 
-    public static async Task<List<StudyScheduleItem>> ForceUpdateSchedule()
+    public async Task ForceUpdateSchedule()
     {
         var schedulePath = GetScheduleFilePath();
         await FileDownloader.DownloadFileAsync(ScheduleDownloadUrl, schedulePath);
-        return await ParseScheduleAsync(schedulePath);
+        Schedule = await ParseScheduleAsync(schedulePath);
     }
 }

@@ -2,7 +2,7 @@ namespace Database;
 
 public class ScheduleService
 {
-    private string connectionString = File.ReadAllText("C:\\Users\\Catofood\\Desktop\\database.txt");
+    private string connectionString = "Host=localhost;Port=5432;Username=postgres;Password=1234;Database=schedule_db;";
 
     public void AddStudyScheduleItem(int? dayOfWeekNumber, int? lessonNumber, bool? isWeekOdd, string? locationName,
         string? classroom,

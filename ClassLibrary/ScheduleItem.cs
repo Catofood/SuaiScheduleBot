@@ -1,6 +1,6 @@
 namespace ClassLibrary;
 
-public class StudyScheduleItem
+public class ScheduleItem
 {
 	public int? DayOfWeekNumber;
 	

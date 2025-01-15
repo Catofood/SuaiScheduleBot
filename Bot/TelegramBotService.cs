@@ -45,12 +45,10 @@ public class TelegramBotService : IHostedService
         await StopAsync(cancellationToken);
     }
 
-    public Task StopAsync(CancellationToken cancellationToken)
+    public async Task StopAsync(CancellationToken cancellationToken)
     {
         var cts = new CancellationTokenSource();
         cts.Cancel();
-
-        throw new NotImplementedException();
     }
 
     private static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,

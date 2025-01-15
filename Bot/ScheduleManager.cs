@@ -1,6 +1,7 @@
-using System.Diagnostics;
 using System.Text;
 using System.Xml.Linq;
+using Bot;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClassLibrary;
 
@@ -11,12 +12,33 @@ namespace ClassLibrary;
 //
 public class ScheduleManager
 {
-    public List<ScheduleItem> Schedule;
-    
     private const string RelativePathToScheduleXml = "Schedules";
     private const string ScheduleFileName = "schedule.xml";
     private const string ScheduleDownloadUrl = "https://guap.ru/rasp/current.xml";
-
+    public List<ScheduleItem>? Schedule;
+    
+    public async Task<List<ScheduleItem>> GetScheduleFromDb(string groupName)
+    {
+        await using var db = new ScheduleDbContext();
+        List<ScheduleItem> scheduleItems = db.Schedule
+            .Where(item => item.GroupNames.Contains(groupName))
+            .Where(item => item.IsWeekOdd == true)
+            .ToList();
+        return scheduleItems;
+    }
+    private async Task SendScheduleToDb()
+    {
+        await using var db = new ScheduleDbContext();
+        Console.WriteLine("Clearing database...");
+        db.Database.ExecuteSqlRaw("DELETE FROM \"Schedule\"");
+        Console.WriteLine("Adding schedule in database...");
+        foreach (var scheduleItem in Schedule)
+        {
+            db.Add(scheduleItem);            
+        }
+        await db.SaveChangesAsync();
+        Console.WriteLine("Schedule added in database.");
+    }
     private static async Task<List<ScheduleItem>> ParseScheduleAsync(string filePath)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -51,7 +73,7 @@ public class ScheduleManager
                     studyScheduleItem.Classroom = study.Attribute("room")?.Value;
                     studyScheduleItem.LessonName = study.Attribute("disc")?.Value;
                     studyScheduleItem.TypeOfLesson = study.Attribute("type")?.Value;
-                    studyScheduleItem.GroupName = study.Attribute("group")?.Value;
+                    studyScheduleItem.GroupNames = study.Attribute("group")?.Value.Split(";").ToList();
                     studyScheduleItem.Teacher = study.Attribute("prep")?.Value;
                     studyScheduleItem.Department = study.Attribute("dept")?.Value;
 
@@ -61,6 +83,7 @@ public class ScheduleManager
             return studySchedules;
         }
     }
+
     private string GetScheduleFilePath()
     {
         return Path.Combine(AppContext.BaseDirectory, RelativePathToScheduleXml, ScheduleFileName);
@@ -71,5 +94,6 @@ public class ScheduleManager
         var schedulePath = GetScheduleFilePath();
         await FileDownloader.DownloadFileAsync(ScheduleDownloadUrl, schedulePath);
         Schedule = await ParseScheduleAsync(schedulePath);
+        await SendScheduleToDb();
     }
 }

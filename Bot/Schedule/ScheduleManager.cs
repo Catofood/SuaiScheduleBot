@@ -1,6 +1,7 @@
 using System.Text;
 using System.Xml.Linq;
 using Bot;
+using Bot.DB;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClassLibrary;
@@ -15,22 +16,53 @@ public class ScheduleManager
     private const string RelativePathToScheduleXml = "Schedules";
     private const string ScheduleFileName = "schedule.xml";
     private const string ScheduleDownloadUrl = "https://guap.ru/rasp/current.xml";
-    public List<ScheduleItem>? Schedule;
-    
-    public async Task<List<ScheduleItem>> GetScheduleFromDb(string groupName)
+    public List<StudyScheduled>? Schedule;
+    // TODO:
+    // Переделать парсер под отправку на БД
+    // Сделать вывод данных в чат по запросу
+    // 
+    public async Task<StudyDoubleWeekSchedule> GetScheduleItemsFromDb(string? groupName)
     {
-        await using var db = new ScheduleDbContext();
-        List<ScheduleItem> scheduleItems = db.Schedule
-            .Where(item => item.GroupNames.Contains(groupName))
-            .Where(item => item.IsWeekOdd == true)
-            .ToList();
-        return scheduleItems;
+        if (groupName == null)
+        {
+            return null;
+        }
+        else
+        {
+            groupName = groupName?.ToLower();
+            // Замена латинских символов на похожие кириллические
+            // В базе данных используются только кириллические
+            groupName = groupName.Replace('c', 'с')
+                .Replace('s', 'с')
+                .Replace('v', 'в')
+                .Replace('r', 'р')
+                .Replace('m', 'м')
+                .Replace('k', 'к')
+                .Replace('a', 'а')
+                .Replace('e', 'е')
+                .Replace('o', 'о')
+                .Replace('p', 'р')
+                .Replace('x', 'ч')
+                .Replace('b', 'в');
+
+            await using var db = new ScheduleDbContext();
+            // Получаем scheduleItems
+            List<StudyScheduledDb>? scheduleItems = db.Schedule
+                .Where(item => item.GroupNames.Contains(groupName))
+                .OrderBy(item => item.DayOfWeekNumber)
+                .ThenBy(item => item.LessonNumber)
+                .ToList();
+            // Получаем oneDaySchedules
+            
+            return scheduleItems;
+        }
     }
     private async Task SendScheduleToDb()
     {
         await using var db = new ScheduleDbContext();
         Console.WriteLine("Clearing database...");
-        db.Database.ExecuteSqlRaw("DELETE FROM \"Schedule\"");
+        db.Database.EnsureDeleted();
+        db.Database.EnsureCreated();
         Console.WriteLine("Adding schedule in database...");
         foreach (var scheduleItem in Schedule)
         {
@@ -39,10 +71,10 @@ public class ScheduleManager
         await db.SaveChangesAsync();
         Console.WriteLine("Schedule added in database.");
     }
-    private static async Task<List<ScheduleItem>> ParseScheduleAsync(string filePath)
+    private static async Task<List<StudyScheduledDb>> ParseScheduleAsync(string filePath)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        var studySchedules = new List<ScheduleItem>();
+        var schedules = new List<StudyScheduledDb>();
         using (var streamReader = new StreamReader(filePath, Encoding.GetEncoding("windows-1251")))
         {
             var doc = await Task.Run(() => XDocument.Load(streamReader));
@@ -50,7 +82,7 @@ public class ScheduleManager
             foreach (var study in studies)
                 if (study != null)
                 {
-                    var studyScheduleItem = new ScheduleItem();
+                    var studyScheduleItem = new StudyScheduledDb();
 
                     int? dayOfWeekNumber = null;
                     {
@@ -73,14 +105,14 @@ public class ScheduleManager
                     studyScheduleItem.Classroom = study.Attribute("room")?.Value;
                     studyScheduleItem.LessonName = study.Attribute("disc")?.Value;
                     studyScheduleItem.TypeOfLesson = study.Attribute("type")?.Value;
-                    studyScheduleItem.GroupNames = study.Attribute("group")?.Value.Split(";").ToList();
+                    studyScheduleItem.GroupNames = study.Attribute("group")?.Value.ToLower().Split(";").ToList();
                     studyScheduleItem.Teacher = study.Attribute("prep")?.Value;
                     studyScheduleItem.Department = study.Attribute("dept")?.Value;
 
-                    studySchedules.Add(studyScheduleItem);
+                    schedules.Add(studyScheduleItem);
                 }
 
-            return studySchedules;
+            return schedules;
         }
     }
 

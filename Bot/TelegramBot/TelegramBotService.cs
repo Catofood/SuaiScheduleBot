@@ -62,7 +62,7 @@ public class TelegramBotService : IHostedService
         var response = "";
         var isAdmin = update.Message.Chat.Id.ToString().Equals("427905464");
 
-        switch (messageText.ToLower())
+        switch (messageText)
         {
             case "/info":
                 if (isAdmin)
@@ -89,23 +89,13 @@ public class TelegramBotService : IHostedService
                 }
                 break;
             case "/schedule":
-                foreach (var scheduleItem in await _scheduleManager.GetScheduleFromDb("М411"))
-                {
-                    response += scheduleItem.GetString();
-                }
-                break;
+                throw new NotImplementedException();
             case "/start":
                 response = "Welcome to Shitposted Bot!";
                 break;
+            default:
+                throw new NotImplementedException();
         }
-        // response = messageText.ToLower() switch
-        // {
-        //     "/start" => "Welcome to the bot!", // Ответ на команду /start
-        //     "/help" => "How can I assist you?", // Ответ на команду /help
-        //     "/test" => "Downloading schedule...",
-        //     "/yo" => "Yo lil bitch",
-        //     _ => "I don't understand that command." // Ответ на неизвестную команду
-        // };
 
         Console.WriteLine($"Sending message to {firstName} {chatId}: {response}");
         await botClient.SendMessage(chatId, response, cancellationToken: cancellationToken);

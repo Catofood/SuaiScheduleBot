@@ -10,7 +10,7 @@ namespace Bot;
 
 public class TelegramBotService : IHostedService
 {
-    private static readonly ScheduleManager _scheduleManager = new();
+    private static ScheduleManager _scheduleManager = new();
     private readonly TelegramBotClient _botClient;
 
     public TelegramBotService()
@@ -67,8 +67,8 @@ public class TelegramBotService : IHostedService
             case "/info":
                 if (isAdmin)
                 {
-                    var amount = _scheduleManager.Schedule.Count.ToString();
-                    response = $"Done. Amount of classes is: {amount}";
+                    var amount = _scheduleManager.Groups.Count.ToString();
+                    response = $"Done. Amount of groups is: {amount}";
                 }
                 else
                 {
@@ -80,8 +80,8 @@ public class TelegramBotService : IHostedService
                 if (isAdmin)
                 {
                     await _scheduleManager.ForceUpdateSchedule();
-                    var amount = _scheduleManager.Schedule.Count.ToString();
-                    response = $"Schedule is successfully updated! Amount of classes is: {amount}";
+                    var amount = _scheduleManager.Groups.Count.ToString();
+                    response = $"Schedule is successfully updated! Amount of groups is: {amount}";
                 }
                 else
                 {

@@ -1,6 +1,7 @@
 using System.Text;
 using System.Xml.Linq;
 using Bot;
+using Db;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClassLibrary;
@@ -15,14 +16,14 @@ public class ScheduleManager
     private const string RelativePathToScheduleXml = "Schedules";
     private const string ScheduleFileName = "schedule.xml";
     private const string ScheduleDownloadUrl = "https://guap.ru/rasp/current.xml";
-    public List<ScheduleItem>? Schedule;
+    public List<Study>? Schedule;
     
-    public async Task<List<ScheduleItem>> GetScheduleFromDb(string groupName)
+    public async Task<List<Study>> GetScheduleFromDb(string groupName)
     {
         await using var db = new ScheduleDbContext();
-        List<ScheduleItem> scheduleItems = db.Schedule
-            .Where(item => item.GroupNames.Contains(groupName))
-            .Where(item => item.IsWeekOdd == true)
+        List<Study> scheduleItems = db.Studies
+            .Where(item => item.Groups.Any(group => group.Name == groupName))
+            .Where(item => item.Week == 1)
             .ToList();
         return scheduleItems;
     }
@@ -30,7 +31,8 @@ public class ScheduleManager
     {
         await using var db = new ScheduleDbContext();
         Console.WriteLine("Clearing database...");
-        db.Database.ExecuteSqlRaw("DELETE FROM \"Schedule\"");
+        db.Database.EnsureDeleted();
+        db.Database.EnsureCreated();
         Console.WriteLine("Adding schedule in database...");
         foreach (var scheduleItem in Schedule)
         {
@@ -39,45 +41,56 @@ public class ScheduleManager
         await db.SaveChangesAsync();
         Console.WriteLine("Schedule added in database.");
     }
-    private static async Task<List<ScheduleItem>> ParseScheduleAsync(string filePath)
+    private static async Task<List<Study>> ParseScheduleAsync(string filePath)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        var studySchedules = new List<ScheduleItem>();
+        var studySchedules = new List<Study>();
         using (var streamReader = new StreamReader(filePath, Encoding.GetEncoding("windows-1251")))
         {
             var doc = await Task.Run(() => XDocument.Load(streamReader));
-            var studies = doc.Descendants("rasp").Elements("study");
-            foreach (var study in studies)
-                if (study != null)
+            var xElementStudies = doc.Descendants("rasp").Elements("study");
+            foreach (var xElementStudy in xElementStudies)
+                if (xElementStudy != null)
                 {
-                    var studyScheduleItem = new ScheduleItem();
+                    var study = new Study();
 
                     int? dayOfWeekNumber = null;
                     {
-                        if (int.TryParse(study.Attribute("day")?.Value, out var parsedDayOfWeekNumber))
+                        if (int.TryParse(xElementStudy.Attribute("day")?.Value, out var parsedDayOfWeekNumber))
                             dayOfWeekNumber = parsedDayOfWeekNumber;
                     }
-                    studyScheduleItem.DayOfWeekNumber = dayOfWeekNumber;
+                    study.Day = dayOfWeekNumber;
 
-                    int? lessonNumber = null;
+                    int? schedulePosition = null;
                     {
-                        if (int.TryParse(study.Attribute("less")?.Value, out var result)) lessonNumber = result;
+                        if (int.TryParse(xElementStudy.Attribute("less")?.Value, out var result)) schedulePosition = result;
                     }
-                    studyScheduleItem.LessonNumber = lessonNumber;
-                    bool? isWeekOdd = null;
+                    int? week = null;
                     {
-                        if (int.TryParse(study.Attribute("week")?.Value, out var value)) isWeekOdd = value % 2 == 1;
+                        if (int.TryParse(xElementStudy.Attribute("week")?.Value, out var result)) week = result;
                     }
-                    studyScheduleItem.IsWeekOdd = isWeekOdd;
-                    studyScheduleItem.LocationName = study.Attribute("build")?.Value;
-                    studyScheduleItem.Classroom = study.Attribute("room")?.Value;
-                    studyScheduleItem.LessonName = study.Attribute("disc")?.Value;
-                    studyScheduleItem.TypeOfLesson = study.Attribute("type")?.Value;
-                    studyScheduleItem.GroupNames = study.Attribute("group")?.Value.Split(";").ToList();
-                    studyScheduleItem.Teacher = study.Attribute("prep")?.Value;
-                    studyScheduleItem.Department = study.Attribute("dept")?.Value;
+                    study.SchedulePosition = schedulePosition;
+                    study.Week = week;
+                    study.Building = xElementStudy.Attribute("build")?.Value;
+                    study.Room = xElementStudy.Attribute("room")?.Value;
+                    study.Discipline = xElementStudy.Attribute("disc")?.Value;
+                    study.Type = xElementStudy.Attribute("type")?.Value;
+                    var groupNames = xElementStudy.Attribute("group")?.Value.ToLower().Split(";").ToList();
+                    if (groupNames != null)
+                    {
+                        study.Groups = new List<Group>();
+                        foreach (var name in groupNames)
+                        {
+                            var group = new Group();
+                            group.Name = name;
+                            group.Studies = new List<Study>(){study};
+                            study.Groups.Add(group);
+                        }
+                    }
+                    study.Teacher = xElementStudy.Attribute("prep")?.Value;
+                    study.Department = xElementStudy.Attribute("dept")?.Value;
 
-                    studySchedules.Add(studyScheduleItem);
+                    studySchedules.Add(study);
                 }
 
             return studySchedules;

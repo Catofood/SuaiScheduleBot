@@ -56,13 +56,13 @@ public class TelegramBotService : IHostedService
     {
         if (update.Message == null) return;
         var chatId = update.Message.Chat.Id;
-        var messageText = update.Message.Text;
+        var messageText = update.Message.Text.ToLower();
         var firstName = update.Message.Chat.FirstName;
         Console.WriteLine($"Received a message from {firstName} {update.Message.Chat.Id}: {messageText}");
         var response = "";
         var isAdmin = update.Message.Chat.Id.ToString().Equals("427905464");
 
-        switch (messageText.ToLower())
+        switch (messageText)
         {
             case "/info":
                 if (isAdmin)
@@ -97,16 +97,26 @@ public class TelegramBotService : IHostedService
             case "/start":
                 response = "Welcome to Shitposted Bot!";
                 break;
+            default:
+                messageText = messageText
+                    .Replace('c', 'с')
+                    .Replace('s', 'с')
+                    .Replace('v', 'в')
+                    .Replace('r', 'р')
+                    .Replace('m', 'м')
+                    .Replace('k', 'к')
+                    .Replace('a', 'а')
+                    .Replace('e', 'е')
+                    .Replace('o', 'о')
+                    .Replace('p', 'р')
+                    .Replace('x', 'ч')
+                    .Replace('b', 'в');
+                foreach (var scheduleItem in await _scheduleManager.GetScheduleFromDb(messageText))
+                {
+                    response += scheduleItem.GetString();
+                }
+                break;
         }
-        // response = messageText.ToLower() switch
-        // {
-        //     "/start" => "Welcome to the bot!", // Ответ на команду /start
-        //     "/help" => "How can I assist you?", // Ответ на команду /help
-        //     "/test" => "Downloading schedule...",
-        //     "/yo" => "Yo lil bitch",
-        //     _ => "I don't understand that command." // Ответ на неизвестную команду
-        // };
-
         Console.WriteLine($"Sending message to {firstName} {chatId}: {response}");
         await botClient.SendMessage(chatId, response, cancellationToken: cancellationToken);
     }

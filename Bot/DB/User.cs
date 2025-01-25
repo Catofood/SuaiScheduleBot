@@ -1,0 +1,10 @@
+namespace Db;
+
+public class User
+{
+    public int Id { get; set; }
+    public int TelegramId { get; set; }
+    public bool IsAdmin { get; set; } = false;
+    public string? GroupId { get; set; }
+    public Group? Group { get; set; }
+}

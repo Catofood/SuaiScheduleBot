@@ -1,5 +1,6 @@
 using ClassLibrary;
 using Db;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -12,9 +13,8 @@ namespace Bot;
 
 public class TelegramBotService : IHostedService
 {
-    private static readonly ScheduleManager _scheduleManager = new();
     private readonly TelegramBotClient _botClient;
-
+    private static ScheduleManager _scheduleManager = new ScheduleManager();
     public TelegramBotService()
     {
         var token = Token.GetToken();
@@ -62,15 +62,22 @@ public class TelegramBotService : IHostedService
         var firstName = update.Message.Chat.FirstName;
         Console.WriteLine($"Received a message from {firstName} {update.Message.Chat.Id}: {messageText}");
         var response = "";
-        var isAdmin = update.Message.Chat.Id.ToString().Equals("427905464");
+        bool isAdmin;
+        await using (var db = new ScheduleDbContext())
+        {
+            isAdmin = db.Users.FirstOrDefault(u => u.TelegramId == update.Message.Chat.Id)?.IsAdmin ?? false; 
+        }
+        
 
         switch (messageText)
         {
             case "/info":
                 if (isAdmin)
                 {
-                    var amount = _scheduleManager.Schedule.Count.ToString();
-                    response = $"Done. Amount of classes is: {amount}";
+                    await using var db = new ScheduleDbContext();
+                    response = $"Amount of studies is: {db.Studies.Count().ToString()}\n" + 
+                               $"Amount of groups is: {db.Groups.Count().ToString()}\n" +
+                               $"Amount of users is: {db.Users.Count().ToString()}";
                 }
                 else
                 {
@@ -82,8 +89,8 @@ public class TelegramBotService : IHostedService
                 if (isAdmin)
                 {
                     await _scheduleManager.ForceUpdateSchedule();
-                    var amount = _scheduleManager.Schedule.Count.ToString();
-                    response = $"Schedule is successfully updated! Amount of classes is: {amount}";
+                    response = $"Schedule is successfully updated!";
+
                 }
                 else
                 {
@@ -110,7 +117,11 @@ public class TelegramBotService : IHostedService
                 }
                 break;
             default:
-                messageText = messageText
+                // На данный момент, если сообщение пользователя не является командой,
+                // то мы принимаем сообщение за поиск расписания по группе.
+                // Например, приходит сообщение от пользователя: "М411",
+                // в таком случае мы возвращаем пользователю список занятий группы М411.
+                var groupName = messageText
                     .Replace('c', 'с')
                     .Replace('s', 'с')
                     .Replace('v', 'в')
@@ -123,9 +134,16 @@ public class TelegramBotService : IHostedService
                     .Replace('p', 'р')
                     .Replace('x', 'ч')
                     .Replace('b', 'в');
-                foreach (var study in await _scheduleManager.GetStudiesFromDb(messageText))
+                await using (var db = new ScheduleDbContext())
                 {
-                    response += $@"
+                    List<Study> studies = db.Studies
+                        .Include(study => study.Groups)
+                        .Where(item => item.Groups.Any(group => group.Name == groupName))
+                        .Where(item => item.Week == 1)
+                        .ToList();
+                    foreach (var study in studies)
+                    {
+                        response += $@"
 Id: {study.Id}
 Day: {study.Day?.ToString() ?? "N/A"}
 SchedulePosition: {study.SchedulePosition?.ToString() ?? "N/A"}
@@ -138,6 +156,7 @@ GroupNames: {study.Groups?.Select(g => g.Name).Aggregate((current, next) => curr
 Teacher: {study.Teacher ?? "N/A"}
 Department: {study.Department ?? "N/A"}
 ";
+                    }
                 }
                 break;
         }

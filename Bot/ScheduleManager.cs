@@ -16,18 +16,8 @@ public class ScheduleManager
     private const string RelativePathToScheduleXml = "Schedules";
     private const string ScheduleFileName = "schedule.xml";
     private const string ScheduleDownloadUrl = "https://guap.ru/rasp/current.xml";
-    public List<Study>? Schedule;
+    private List<Study>? Studies;
     
-    public async Task<List<Study>> GetStudiesFromDb(string groupName)
-    {
-        await using var db = new ScheduleDbContext();
-        List<Study> scheduleItems = db.Studies
-            .Include(study => study.Groups)
-            .Where(item => item.Groups.Any(group => group.Name == groupName))
-            .Where(item => item.Week == 1)
-            .ToList();
-        return scheduleItems;
-    }
     private async Task SendScheduleToDb()
     {
         await using var db = new ScheduleDbContext();
@@ -37,7 +27,7 @@ public class ScheduleManager
         Console.WriteLine("Clearing studies...");
         db.Studies.RemoveRange(db.Studies);
         Console.WriteLine("Adding studies to database...");
-        foreach (var scheduleItem in Schedule)
+        foreach (var scheduleItem in Studies)
         {
             db.Add(scheduleItem);            
         }
@@ -124,7 +114,7 @@ public class ScheduleManager
     {
         var schedulePath = GetScheduleFilePath();
         await FileDownloader.DownloadFileAsync(ScheduleDownloadUrl, schedulePath);
-        Schedule = await ParseScheduleAsync(schedulePath);
+        Studies = await ParseScheduleAsync(schedulePath);
         await SendScheduleToDb();
     }
 }

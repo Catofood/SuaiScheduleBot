@@ -18,10 +18,11 @@ public class ScheduleManager
     private const string ScheduleDownloadUrl = "https://guap.ru/rasp/current.xml";
     public List<Study>? Schedule;
     
-    public async Task<List<Study>> GetScheduleFromDb(string groupName)
+    public async Task<List<Study>> GetStudiesFromDb(string groupName)
     {
         await using var db = new ScheduleDbContext();
         List<Study> scheduleItems = db.Studies
+            .Include(study => study.Groups)
             .Where(item => item.Groups.Any(group => group.Name == groupName))
             .Where(item => item.Week == 1)
             .ToList();
@@ -30,21 +31,24 @@ public class ScheduleManager
     private async Task SendScheduleToDb()
     {
         await using var db = new ScheduleDbContext();
-        Console.WriteLine("Clearing database...");
-        db.Database.EnsureDeleted();
         db.Database.EnsureCreated();
-        Console.WriteLine("Adding schedule in database...");
+        Console.WriteLine("Clearing groups...");
+        db.Groups.RemoveRange(db.Groups);
+        Console.WriteLine("Clearing studies...");
+        db.Studies.RemoveRange(db.Studies);
+        Console.WriteLine("Adding studies to database...");
         foreach (var scheduleItem in Schedule)
         {
             db.Add(scheduleItem);            
         }
         await db.SaveChangesAsync();
-        Console.WriteLine("Schedule added in database.");
+        Console.WriteLine("Studies added to database.");
     }
     private static async Task<List<Study>> ParseScheduleAsync(string filePath)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        var studySchedules = new List<Study>();
+        var studies = new List<Study>();
+        var groups = new List<Group>();
         using (var streamReader = new StreamReader(filePath, Encoding.GetEncoding("windows-1251")))
         {
             var doc = await Task.Run(() => XDocument.Load(streamReader));
@@ -81,19 +85,33 @@ public class ScheduleManager
                         study.Groups = new List<Group>();
                         foreach (var name in groupNames)
                         {
-                            var group = new Group();
-                            group.Name = name;
-                            group.Studies = new List<Study>(){study};
+                            var group = groups.FirstOrDefault(g => g.Name == name);
+                            if (group == null)
+                            {
+                                group = new Group();
+                                group.Name = name;
+                                group.Studies = new List<Study>();
+                                group.Studies.Add(study);
+                                groups.Add(group);
+                            }
+                            else
+                            {
+                                group.Studies!.Add(study);
+                            }
+                            if (group.Name == "м411")
+                            {
+                                Console.WriteLine(group.Name);
+                            }
                             study.Groups.Add(group);
                         }
                     }
                     study.Teacher = xElementStudy.Attribute("prep")?.Value;
                     study.Department = xElementStudy.Attribute("dept")?.Value;
 
-                    studySchedules.Add(study);
+                    studies.Add(study);
                 }
 
-            return studySchedules;
+            return studies;
         }
     }
 

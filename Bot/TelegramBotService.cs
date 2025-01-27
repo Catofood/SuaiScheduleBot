@@ -1,10 +1,12 @@
 using ClassLibrary;
+using Db;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using User = Db.User;
 
 namespace Bot;
 
@@ -89,13 +91,23 @@ public class TelegramBotService : IHostedService
                 }
                 break;
             case "/schedule":
-                foreach (var scheduleItem in await _scheduleManager.GetScheduleFromDb("М411"))
-                {
-                    response += scheduleItem.GetString();
-                }
+                // foreach (var scheduleItem in await _scheduleManager.GetStudiesFromDb("М411"))
+                // {
+                //     response += scheduleItem.GetString();
+                // }
                 break;
             case "/start":
-                response = "Welcome to Shitposted Bot!";
+                await using (var db = new ScheduleDbContext())
+                {
+                    if (db.Users.Any(user => user.TelegramId == update.Message.Chat.Id) == false)
+                    {
+                        db.Users.Add(new User() { TelegramId = update.Message.Chat.Id });
+                        response = "Welcome to SuaiProject!";
+                        db.SaveChanges();
+                    }
+                    else response = "Welcome back to SuaiProject!";
+                    
+                }
                 break;
             default:
                 messageText = messageText
@@ -111,9 +123,21 @@ public class TelegramBotService : IHostedService
                     .Replace('p', 'р')
                     .Replace('x', 'ч')
                     .Replace('b', 'в');
-                foreach (var scheduleItem in await _scheduleManager.GetScheduleFromDb(messageText))
+                foreach (var study in await _scheduleManager.GetStudiesFromDb(messageText))
                 {
-                    response += scheduleItem.GetString();
+                    response += $@"
+Id: {study.Id}
+Day: {study.Day?.ToString() ?? "N/A"}
+SchedulePosition: {study.SchedulePosition?.ToString() ?? "N/A"}
+Week: {study.Week?.ToString() ?? "N/A"}
+LocationName: {study.Building ?? "N/A"}
+Classroom: {study.Room ?? "N/A"}
+LessonName: {study.Discipline ?? "N/A"}
+TypeOfLesson: {study.Type ?? "N/A"}
+GroupNames: {study.Groups?.Select(g => g.Name).Aggregate((current, next) => current + ", " + next) ?? "N/A"}
+Teacher: {study.Teacher ?? "N/A"}
+Department: {study.Department ?? "N/A"}
+";
                 }
                 break;
         }

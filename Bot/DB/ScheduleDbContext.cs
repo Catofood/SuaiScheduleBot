@@ -10,6 +10,7 @@ public class ScheduleDbContext : DbContext
     public DbSet<Group> Groups { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseNpgsql("Host=localhost;Username=postgres;Password=1234;Database=suaiproject");
+        options
+            .UseNpgsql("Host=localhost;Username=postgres;Password=1234;Database=suaiproject");
     }
 }

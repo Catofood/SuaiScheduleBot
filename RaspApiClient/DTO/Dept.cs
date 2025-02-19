@@ -4,11 +4,9 @@ using System.Text.Json.Serialization;
 
 public class Dept
 {
-    [JsonPropertyName("ItemId")]
-    public int ItemId { get; init; }
-    
-    [JsonPropertyName("Name")]
-    public string Name { get; init; }
+    [JsonPropertyName("ItemId")] public int ItemId { get; init; }
+
+    [JsonPropertyName("Name")] public string Name { get; init; }
 }
 
 

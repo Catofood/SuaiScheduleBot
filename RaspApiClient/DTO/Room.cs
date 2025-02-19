@@ -4,14 +4,11 @@ using System.Text.Json.Serialization;
 
 public class Room
 {
-    [JsonPropertyName("ItemId")]
-    public int ItemId { get; init; }
+    [JsonPropertyName("ItemId")] public int ItemId { get; init; }
 
-    [JsonPropertyName("Name")]
-    public string Name { get; init; }
+    [JsonPropertyName("Name")] public string Name { get; init; }
 
-    [JsonPropertyName("BuildingId")]
-    public int BuildingId { get; init; }
+    [JsonPropertyName("BuildingId")] public int BuildingId { get; init; }
 }
 
 
@@ -24,7 +21,6 @@ public class Room
 //      'ItemId': gr_id         // Идентификатор аудитории
 //   ...
 // ]
-
 
 
 // Пример 

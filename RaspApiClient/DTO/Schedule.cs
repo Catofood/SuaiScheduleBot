@@ -2,29 +2,21 @@ using System.Text.Json.Serialization;
 
 namespace RaspApiClient.DTO;
 
-
 public class Schedule
 {
-    [JsonPropertyName("monday")]
-    public List<Event> Monday { get; init; }
+    [JsonPropertyName("monday")] public List<Event> Monday { get; init; }
 
-    [JsonPropertyName("tuesday")]
-    public List<Event> Tuesday { get; init; }
+    [JsonPropertyName("tuesday")] public List<Event> Tuesday { get; init; }
 
-    [JsonPropertyName("wednesday")]
-    public List<Event> Wednesday { get; init; }
+    [JsonPropertyName("wednesday")] public List<Event> Wednesday { get; init; }
 
-    [JsonPropertyName("thursday")]
-    public List<Event> Thursday { get; init; }
+    [JsonPropertyName("thursday")] public List<Event> Thursday { get; init; }
 
-    [JsonPropertyName("friday")]
-    public List<Event> Friday { get; init; }
+    [JsonPropertyName("friday")] public List<Event> Friday { get; init; }
 
-    [JsonPropertyName("saturday")]
-    public List<Event> Saturday { get; init; }
+    [JsonPropertyName("saturday")] public List<Event> Saturday { get; init; }
 
-    [JsonPropertyName("other")]
-    public List<Event> Other { get; init; }
+    [JsonPropertyName("other")] public List<Event> Other { get; init; }
 }
 
 

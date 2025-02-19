@@ -1,4 +1,4 @@
-namespace Db;
+namespace Bot.Db;
 
 public class User
 {

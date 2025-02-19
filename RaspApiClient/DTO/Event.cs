@@ -2,31 +2,23 @@ namespace RaspApiClient.DTO;
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+
 public class Event
 {
-    [JsonPropertyName("eventName")]
-    public string EventName { get; init; }
+    [JsonPropertyName("eventName")] public string EventName { get; init; }
 
-    [JsonPropertyName("eventDateStart")]
-    public long EventDateStart { get; init; }
+    [JsonPropertyName("eventDateStart")] public long EventDateStart { get; init; }
 
-    [JsonPropertyName("eventDateEnd")]
-    public long EventDateEnd { get; init; }
+    [JsonPropertyName("eventDateEnd")] public long EventDateEnd { get; init; }
 
-    [JsonPropertyName("roomIds")]
-    public List<int> RoomIds { get; init; }
+    [JsonPropertyName("roomIds")] public List<int> RoomIds { get; init; }
 
-    [JsonPropertyName("teacherIds")]
-    public List<int> TeacherIds { get; init; }
+    [JsonPropertyName("teacherIds")] public List<int> TeacherIds { get; init; }
 
-    [JsonPropertyName("departmentId")]
-    public int DepartmentId { get; init; }
+    [JsonPropertyName("departmentId")] public int DepartmentId { get; init; }
 
-    [JsonPropertyName("eventType")]
-    public string EventType { get; init; }
+    [JsonPropertyName("eventType")] public string EventType { get; init; }
 }
-
-
 
 
 // /get-sem-group-events?term=<term_num>&id=<group_id>&startdate=&enddate= - получить список пар (очки и вечерки) для группы с ИД group_id

@@ -1,4 +1,4 @@
-using Db;
+using Bot.Db;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -16,6 +16,7 @@ public class TextMessageHandler : IMessageHandler
         _botClient = botClient;
         _scheduleDbContext = scheduleDbContext;
     }
+
     public async Task Handle(Message message)
     {
         var chatId = message.Chat.Id;
@@ -24,20 +25,16 @@ public class TextMessageHandler : IMessageHandler
         Console.WriteLine($"Received a message from {firstName} {message.Chat.Id}: {messageText}");
         var response = "";
         bool isAdmin;
-        isAdmin = _scheduleDbContext.Users.FirstOrDefault(u => u.TelegramId == message.Chat.Id)?.IsAdmin ?? false; 
+        isAdmin = _scheduleDbContext.Users.FirstOrDefault(u => u.TelegramId == message.Chat.Id)?.IsAdmin ?? false;
         switch (messageText)
         {
             case "/info":
                 if (isAdmin)
-                {
-                    response = $"Amount of studies is: {_scheduleDbContext.Studies.Count().ToString()}\n" + 
+                    response = $"Amount of studies is: {_scheduleDbContext.Studies.Count().ToString()}\n" +
                                $"Amount of groups is: {_scheduleDbContext.Groups.Count().ToString()}\n" +
                                $"Amount of users is: {_scheduleDbContext.Users.Count().ToString()}";
-                }
                 else
-                {
                     response = "You are not allowed to use this command.";
-                }
 
                 break;
             // case "/update":
@@ -59,13 +56,17 @@ public class TextMessageHandler : IMessageHandler
             //     // }
             //     break;
             case "/start":
-                    if (_scheduleDbContext.Users.Any(user => user.TelegramId == message.Chat.Id) == false)
-                    {
-                        _scheduleDbContext.Users.Add(new Db.User(){TelegramId = message.Chat.Id});
-                        response = "Welcome to SuaiProject!";
-                        _scheduleDbContext.SaveChanges();
-                    }
-                    else response = "Welcome back to SuaiProject!";
+                if (_scheduleDbContext.Users.Any(user => user.TelegramId == message.Chat.Id) == false)
+                {
+                    _scheduleDbContext.Users.Add(new Db.User() { TelegramId = message.Chat.Id });
+                    response = "Welcome to SuaiProject!";
+                    _scheduleDbContext.SaveChanges();
+                }
+                else
+                {
+                    response = "Welcome back to SuaiProject!";
+                }
+
                 break;
             default:
                 // На данный момент, если сообщение пользователя не является командой,
@@ -86,30 +87,29 @@ public class TextMessageHandler : IMessageHandler
                     .Replace('x', 'ч')
                     .Replace('b', 'в');
 
-                
-                    List<Study> studies = _scheduleDbContext.Studies
-                        .Include(study => study.Groups)
-                        .Where(item => item.Groups.Any(group => group.Name == groupName))
-                        .Where(item => item.Week == 1)
-                        .ToList();
-                    foreach (var study in studies)
-                    {
-                        response += 
-                            $"Id: {study.Id}\n" +
-                            $"Day: {study.Day?.ToString() ?? "N/A"}\n" +
-                            $"SchedulePosition: {study.SchedulePosition?.ToString() ?? "N/A"}\n" +
-                            $"Week: {study.Week?.ToString() ?? "N/A"}\n" +
-                            $"LocationName: {study.Building ?? "N/A"}\n" +
-                            $"Classroom: {study.Room ?? "N/A"}\n" +
-                            $"LessonName: {study.Discipline ?? "N/A"}\n" +
-                            $"TypeOfLesson: {study.Type ?? "N/A"}\n" +
-                            $"GroupNames: {study.Groups?.Select(g => g.Name).Aggregate((current, next) => current + ", " + next) ?? "N/A"}\n" +
-                            $"Teacher: {study.Teacher ?? "N/A"}\n" +
-                            $"Department: {study.Department ?? "N/A"}";
-                    }
-                
+
+                List<Study> studies = _scheduleDbContext.Studies
+                    .Include(study => study.Groups)
+                    .Where(item => item.Groups.Any(group => group.Name == groupName))
+                    .Where(item => item.Week == 1)
+                    .ToList();
+                foreach (var study in studies)
+                    response +=
+                        $"Id: {study.Id}\n" +
+                        $"Day: {study.Day?.ToString() ?? "N/A"}\n" +
+                        $"SchedulePosition: {study.SchedulePosition?.ToString() ?? "N/A"}\n" +
+                        $"Week: {study.Week?.ToString() ?? "N/A"}\n" +
+                        $"LocationName: {study.Building ?? "N/A"}\n" +
+                        $"Classroom: {study.Room ?? "N/A"}\n" +
+                        $"LessonName: {study.Discipline ?? "N/A"}\n" +
+                        $"TypeOfLesson: {study.Type ?? "N/A"}\n" +
+                        $"GroupNames: {study.Groups?.Select(g => g.Name).Aggregate((current, next) => current + ", " + next) ?? "N/A"}\n" +
+                        $"Teacher: {study.Teacher ?? "N/A"}\n" +
+                        $"Department: {study.Department ?? "N/A"}";
+
                 break;
         }
+
         Console.WriteLine($"Sending message to {firstName} {chatId}: {response}");
         await _botClient.SendMessage(chatId, response);
     }

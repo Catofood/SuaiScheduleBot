@@ -4,14 +4,11 @@ namespace RaspApiClient.DTO;
 
 public class Building
 {
-    [JsonPropertyName("Name")]
-    string Name { get; init; }
-    
-    [JsonPropertyName("Title")]
-    string Title { get; init; }
-    
-    [JsonPropertyName("ItemId")]
-    int ItemId { get; init; }
+    [JsonPropertyName("Name")] private string Name { get; init; }
+
+    [JsonPropertyName("Title")] private string Title { get; init; }
+
+    [JsonPropertyName("ItemId")] private int ItemId { get; init; }
 }
 
 // /get-sem-rooms - получить список аудиторий

@@ -4,20 +4,15 @@ using System.Text.Json.Serialization;
 
 public class Teacher
 {
-    [JsonPropertyName("ItemId")]
-    public int ItemId { get; init; }
+    [JsonPropertyName("ItemId")] public int ItemId { get; init; }
 
-    [JsonPropertyName("Name")]
-    public string Name { get; init; }
+    [JsonPropertyName("Name")] public string Name { get; init; }
 
-    [JsonPropertyName("Post")]
-    public string Post { get; init; }
+    [JsonPropertyName("Post")] public string Post { get; init; }
 
-    [JsonPropertyName("Degree")]
-    public string Degree { get; init; }
+    [JsonPropertyName("Degree")] public string Degree { get; init; }
 
-    [JsonPropertyName("AcademicTitle")]
-    public string AcademicTitle { get; init; }
+    [JsonPropertyName("AcademicTitle")] public string AcademicTitle { get; init; }
 }
 
 

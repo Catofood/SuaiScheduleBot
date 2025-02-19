@@ -1,14 +1,11 @@
 using Bot.Handlers;
-using Bot.Services;
-using Db;
-using Microsoft.EntityFrameworkCore;
+using Bot.Db;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using User = Db.User;
 
 namespace Bot.Services;
 
@@ -17,7 +14,9 @@ public class TelegramBotService : IHostedService
     private readonly ITelegramBotClient _botClient;
     private readonly TextMessageHandler _textMessageHandler;
     private readonly ScheduleDbContext _scheduleDbContext;
-    public TelegramBotService(ITelegramBotClient botClient, TextMessageHandler textMessageHandler, ScheduleDbContext scheduleDbContext)
+
+    public TelegramBotService(ITelegramBotClient botClient, TextMessageHandler textMessageHandler,
+        ScheduleDbContext scheduleDbContext)
     {
         _botClient = botClient;
         _textMessageHandler = textMessageHandler;
@@ -59,10 +58,7 @@ public class TelegramBotService : IHostedService
     private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
-        if (update.Message.Text != null)
-        {
-            await _textMessageHandler.Handle(update.Message);
-        }
+        if (update.Message.Text != null) await _textMessageHandler.Handle(update.Message);
     }
 
     private static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception,

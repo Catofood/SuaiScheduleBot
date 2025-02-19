@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Bot.Migrations
+namespace Bot.Services.Migrations
 {
     [DbContext(typeof(ScheduleDbContext))]
     partial class ScheduleDbContextModelSnapshot : ModelSnapshot

@@ -1,4 +1,4 @@
-using ClassLibrary;
+using Bot.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Db;

@@ -1,6 +1,6 @@
 namespace RaspApiClient;
 
-public class ParserService
+public class Parser
 {
     
 }

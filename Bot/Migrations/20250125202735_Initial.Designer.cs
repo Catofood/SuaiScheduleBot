@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Bot.Migrations
+namespace Bot.Services.Migrations
 {
     [DbContext(typeof(ScheduleDbContext))]
     [Migration("20250125202735_Initial")]

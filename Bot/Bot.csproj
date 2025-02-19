@@ -23,7 +23,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Controllers\" />
       <Folder Include="Migrations\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\RaspApiClient\RaspApiClient.csproj" />
     </ItemGroup>
 
 </Project>

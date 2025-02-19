@@ -1,6 +1,6 @@
 namespace RaspApiClient;
 
-public class HttpGetService
+public class HttpController
 {
     
 }

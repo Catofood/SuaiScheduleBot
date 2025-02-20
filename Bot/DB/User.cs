@@ -1,10 +1,10 @@
 namespace Bot.Db;
 
-public class User
+public record User
 {
-    public int Id { get; set; }
-    public long TelegramId { get; set; }
-    public bool IsAdmin { get; set; } = false;
-    public string? GroupId { get; set; }
-    public Group? Group { get; set; }
+    public int Id;
+    public long TelegramId;
+    public bool IsAdmin = false;
+    public string? GroupId;
+    public Group? Group;
 }

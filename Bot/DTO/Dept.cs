@@ -2,11 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace Bot.DTO;
 
-public class Dept
+public record Dept
 {
-    [JsonPropertyName("ItemId")] public int ItemId { get; init; }
-
-    [JsonPropertyName("Name")] public string Name { get; init; }
+    [JsonPropertyName("ItemId")] public int ItemId;
+    [JsonPropertyName("Name")] public string Name;
 }
 
 

@@ -2,21 +2,15 @@ using System.Text.Json.Serialization;
 
 namespace Bot.DTO;
 
-public class Schedule
+public record Schedule
 {
-    [JsonPropertyName("monday")] public List<Event> Monday { get; init; }
-
-    [JsonPropertyName("tuesday")] public List<Event> Tuesday { get; init; }
-
-    [JsonPropertyName("wednesday")] public List<Event> Wednesday { get; init; }
-
-    [JsonPropertyName("thursday")] public List<Event> Thursday { get; init; }
-
-    [JsonPropertyName("friday")] public List<Event> Friday { get; init; }
-
-    [JsonPropertyName("saturday")] public List<Event> Saturday { get; init; }
-
-    [JsonPropertyName("other")] public List<Event> Other { get; init; }
+    [JsonPropertyName("monday")] public List<Event> Monday;
+    [JsonPropertyName("tuesday")] public List<Event> Tuesday;
+    [JsonPropertyName("wednesday")] public List<Event> Wednesday;
+    [JsonPropertyName("thursday")] public List<Event> Thursday;
+    [JsonPropertyName("friday")] public List<Event> Friday;
+    [JsonPropertyName("saturday")] public List<Event> Saturday;
+    [JsonPropertyName("other")] public List<Event> Other;
 }
 
 

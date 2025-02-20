@@ -3,21 +3,15 @@ using System.Text.Json.Serialization;
 
 namespace Bot.DTO;
 
-public class Event
+public record Event
 {
-    [JsonPropertyName("eventName")] public string EventName { get; init; }
-
-    [JsonPropertyName("eventDateStart")] public long EventDateStart { get; init; }
-
-    [JsonPropertyName("eventDateEnd")] public long EventDateEnd { get; init; }
-
-    [JsonPropertyName("roomIds")] public List<int> RoomIds { get; init; }
-
-    [JsonPropertyName("teacherIds")] public List<int> TeacherIds { get; init; }
-
-    [JsonPropertyName("departmentId")] public int DepartmentId { get; init; }
-
-    [JsonPropertyName("eventType")] public string EventType { get; init; }
+    [JsonPropertyName("eventName")] public string EventName;
+    [JsonPropertyName("eventDateStart")] public long EventDateStart;
+    [JsonPropertyName("eventDateEnd")] public long EventDateEnd;
+    [JsonPropertyName("roomIds")] public List<int> RoomIds;
+    [JsonPropertyName("teacherIds")] public List<int> TeacherIds;
+    [JsonPropertyName("departmentId")] public int DepartmentId;
+    [JsonPropertyName("eventType")] public string EventType;
 }
 
 

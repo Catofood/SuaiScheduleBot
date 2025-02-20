@@ -19,7 +19,7 @@ public class TextMessageHandler : IMessageHandler
 
     }
 
-    public async Task Handle(Message message)
+    public async Task HandleMessage(Message message)
     {
         var chatId = message.Chat.Id;
         var messageText = message.Text.ToLower();
@@ -30,7 +30,15 @@ public class TextMessageHandler : IMessageHandler
         using (var scope = _scopeFactory.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<ScheduleDbContext>();
-            isAdmin = db.Users.FirstOrDefault(u => u.TelegramId == message.Chat.Id)?.IsAdmin ?? false;
+            
+            // Проверка на наличие пользователя в базе данных
+            var user = db.Users.FirstOrDefault(u => u.TelegramId == message.Chat.Id);
+            if (user == null)
+            {
+                db.Users.Add(new Db.User() { TelegramId = message.Chat.Id });
+                await db.SaveChangesAsync();
+            }
+            isAdmin = user?.IsAdmin ?? false;
             switch (messageText)
             {
                 case "/info":
@@ -40,7 +48,6 @@ public class TextMessageHandler : IMessageHandler
                                    $"Amount of users is: {db.Users.Count().ToString()}";
                     else
                         response = "You are not allowed to use this command.";
-
                     break;
                 // case "/update":
                 //     if (isAdmin)
@@ -63,9 +70,7 @@ public class TextMessageHandler : IMessageHandler
                 case "/start":
                     if (db.Users.Any(user => user.TelegramId == message.Chat.Id) == false)
                     {
-                        db.Users.Add(new Db.User() { TelegramId = message.Chat.Id });
                         response = "Welcome to SuaiProject!";
-                        db.SaveChanges();
                     }
                     else
                     {
@@ -111,9 +116,12 @@ public class TextMessageHandler : IMessageHandler
                             $"GroupNames: {study.Groups?.Select(g => g.Name).Aggregate((current, next) => current + ", " + next) ?? "N/A"}\n" +
                             $"Teacher: {study.Teacher ?? "N/A"}\n" +
                             $"Department: {study.Department ?? "N/A"}";
+                    await db.SaveChangesAsync();
                     break;
                 }
             }
+
+            await db.SaveChangesAsync();
         }
         Console.WriteLine($"Sending message to {firstName} {chatId}: {response}");
         await _botClient.SendMessage(chatId, response);

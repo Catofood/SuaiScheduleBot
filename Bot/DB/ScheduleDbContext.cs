@@ -1,3 +1,4 @@
+using Bot.DTO;
 using Bot.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,4 +13,6 @@ public class ScheduleDbContext : DbContext
     public DbSet<Study> Studies { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Group> Groups { get; set; }
+    
+    public DbSet<CalendarEvent> CalendarEvents { get; set; }
 }

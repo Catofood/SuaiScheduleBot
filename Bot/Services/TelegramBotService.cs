@@ -57,7 +57,7 @@ public class TelegramBotService : IHostedService
         if (update.Message.Text != null)
         {
             using var scope = _scopeFactory.CreateScope();
-            await scope.ServiceProvider.GetRequiredService<TextMessageHandler>().Handle(update.Message);
+            await scope.ServiceProvider.GetRequiredService<TextMessageHandler>().HandleMessage(update.Message);
         }
     }
 

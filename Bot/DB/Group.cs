@@ -1,9 +1,9 @@
 namespace Bot.Db;
 
-public class Group
+public record Group
 {
-    public int Id { get; set; }
-    public List<User>? Users { get; set; }
-    public List<Study>? Studies { get; set; }
-    public string? Name { get; set; }
+    public int Id;
+    public List<User>? Users;
+    public List<Study>? Studies;
+    public string? Name;
 }

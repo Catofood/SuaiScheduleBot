@@ -1,13 +1,11 @@
 using System.Text.Json.Serialization;
 
 namespace Bot.DTO;
-public class Room
+public record Room
 {
-    [JsonPropertyName("ItemId")] public int ItemId { get; init; }
-
-    [JsonPropertyName("Name")] public string Name { get; init; }
-
-    [JsonPropertyName("BuildingId")] public int BuildingId { get; init; }
+    [JsonPropertyName("ItemId")] public int ItemId;
+    [JsonPropertyName("Name")] public string Name;
+    [JsonPropertyName("BuildingId")] public int BuildingId;
 }
 
 

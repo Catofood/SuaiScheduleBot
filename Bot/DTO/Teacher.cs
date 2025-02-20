@@ -2,17 +2,13 @@ using System.Text.Json.Serialization;
 
 namespace Bot.DTO;
 
-public class Teacher
+public record Teacher
 {
-    [JsonPropertyName("ItemId")] public int ItemId { get; init; }
-
-    [JsonPropertyName("Name")] public string Name { get; init; }
-
-    [JsonPropertyName("Post")] public string Post { get; init; }
-
-    [JsonPropertyName("Degree")] public string Degree { get; init; }
-
-    [JsonPropertyName("AcademicTitle")] public string AcademicTitle { get; init; }
+    [JsonPropertyName("ItemId")] public int ItemId;
+    [JsonPropertyName("Name")] public string Name;
+    [JsonPropertyName("Post")] public string Post;
+    [JsonPropertyName("Degree")] public string Degree;
+    [JsonPropertyName("AcademicTitle")] public string AcademicTitle;
 }
 
 

@@ -4,5 +4,5 @@ namespace Bot.Handlers;
 
 public interface IMessageHandler
 {
-    public Task Handle(Message message);
+    public Task HandleMessage(Message message);
 }

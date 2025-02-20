@@ -2,21 +2,21 @@ using System.Text.Json.Serialization;
 
 namespace Bot.DTO;
 
-public class Version
+public record Version
 {
-    [JsonPropertyName("versionID")] public int VersionId { get; init; }
+    [JsonPropertyName("versionID")] public int VersionId;
 
-    [JsonPropertyName("version_main")] public int VersionMain { get; init; }
+    [JsonPropertyName("version_main")] public int VersionMain;
 
-    [JsonPropertyName("version_session")] public int VersionSession { get; init; }
+    [JsonPropertyName("version_session")] public int VersionSession;
 
-    [JsonPropertyName("version_zaoch")] public int VersionZaoch { get; init; }
+    [JsonPropertyName("version_zaoch")] public int VersionZaoch;
 
-    [JsonPropertyName("version_spo")] public int VersionSpo { get; init; }
+    [JsonPropertyName("version_spo")] public int VersionSpo;
 
-    [JsonPropertyName("datetime")] public long DateTime { get; init; }
+    [JsonPropertyName("datetime")] public long DateTime;
 
-    [JsonPropertyName("term")] public int Term { get; init; }
+    [JsonPropertyName("term")] public int Term;
 }
 
 

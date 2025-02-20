@@ -2,13 +2,11 @@ using System.Text.Json.Serialization;
 
 namespace Bot.DTO;
 
-public class Building
+public record Building
 {
-    [JsonPropertyName("Name")] private string Name { get; init; }
-
-    [JsonPropertyName("Title")] private string Title { get; init; }
-
-    [JsonPropertyName("ItemId")] private int ItemId { get; init; }
+    [JsonPropertyName("Name")] private string Name;
+    [JsonPropertyName("Title")] private string Title;
+    [JsonPropertyName("ItemId")] private int ItemId;
 }
 
 // /get-sem-rooms - получить список аудиторий

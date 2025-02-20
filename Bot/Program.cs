@@ -14,12 +14,11 @@ internal class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        
+        builder.Configuration.AddUserSecrets<Program>();
         builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(provider =>
         {
-            // var token = Token.GetToken();
-            // return new TelegramBotClient(token);
-            return new TelegramBotClient(builder.Configuration["TelegramBot:Token"]);
+            var token = builder.Configuration["TelegramBot:Token"];
+            return new TelegramBotClient(token);
         });
         builder.Services.AddHostedService<TelegramBotService>();
         builder.Services.AddDbContext<ScheduleDbContext>(options =>

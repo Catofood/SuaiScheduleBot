@@ -1,7 +1,7 @@
-namespace RaspApiClient.DTO;
-
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+
+namespace Bot.DTO;
 
 public class Event
 {

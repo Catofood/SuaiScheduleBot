@@ -1,4 +1,4 @@
-namespace RaspApiClient;
+namespace Bot;
 
 public class ScheduleItem
 {

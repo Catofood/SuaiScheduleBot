@@ -1,7 +1,6 @@
-namespace RaspApiClient.DTO;
-
 using System.Text.Json.Serialization;
 
+namespace Bot.DTO;
 public class Room
 {
     [JsonPropertyName("ItemId")] public int ItemId { get; init; }

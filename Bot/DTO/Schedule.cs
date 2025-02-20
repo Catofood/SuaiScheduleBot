@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace RaspApiClient.DTO;
+namespace Bot.DTO;
 
 public class Schedule
 {

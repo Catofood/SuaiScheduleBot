@@ -1,6 +1,6 @@
-namespace RaspApiClient.DTO;
-
 using System.Text.Json.Serialization;
+
+namespace Bot.DTO;
 
 public class Version
 {

@@ -13,50 +13,17 @@ internal class Program
 {
     public static void Main(string[] args)
     {
-        // IHostBuilder host = Host.CreateDefaultBuilder(args)
-        //     .ConfigureAppConfiguration((context, config) =>
-        //     {
-        //         config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-        //     })
-        //     .ConfigureServices((hostContext, services) =>
-        //     {
-        //         services.AddSingleton<ITelegramBotClient, TelegramBotClient>(provider =>
-        //         {
-        //             var token = Token.GetToken();
-        //             return new TelegramBotClient(token);
-        //         });
-        //         services.AddHostedService<TelegramBotService>();
-        //         services.AddDbContext<ScheduleDbContext>(options => 
-        //             options.UseNpgsql(hostContext.Configuration.GetConnectionString("DbConnectionString")));
-        //         services.AddScoped<DbService>();
-        //         services.AddScoped<TextMessageHandler>();
-        //     });
-        // host.Build().Run();
-        //
-
-
-        // var settings = new HostApplicationBuilderSettings
-        // {
-        //     ContentRootPath = Directory.GetCurrentDirectory(),
-        // };
         var builder = WebApplication.CreateBuilder(args);
-
-        // почему-то без этой злоебучей конструкции не находит appsettings.json
-        // var projectPath = Directory.GetParent(Directory.GetCurrentDirectory())?.Parent?.Parent?.FullName;
-        // ArgumentNullException.ThrowIfNull(projectPath);
-        // builder.Configuration.SetBasePath(projectPath);
-        // builder.Configuration.AddJsonFile("appsettings.json", false, true);
-        // TODO: Настроить appsettings.json
+        
         builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(provider =>
         {
             // var token = Token.GetToken();
             // return new TelegramBotClient(token);
-            return new TelegramBotClient(builder.Configuration.GetRequiredSection("TelegramBot")
-                .GetRequiredSection("Token").Value);
+            return new TelegramBotClient(builder.Configuration["TelegramBot:Token"]);
         });
         builder.Services.AddHostedService<TelegramBotService>();
         builder.Services.AddDbContext<ScheduleDbContext>(options =>
-            options.UseNpgsql(builder.Configuration.GetConnectionString("SuaiProject")));
+            options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
         builder.Services.AddScoped<DbService>();
         builder.Services.AddScoped<TextMessageHandler>();
         builder.Build().Run();

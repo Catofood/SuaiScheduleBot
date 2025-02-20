@@ -1,5 +1,6 @@
-using Bot.Handlers;
 using Bot.Db;
+using Bot.Handlers;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -12,21 +13,16 @@ namespace Bot.Services;
 public class TelegramBotService : IHostedService
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly TextMessageHandler _textMessageHandler;
-    private readonly ScheduleDbContext _scheduleDbContext;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public TelegramBotService(ITelegramBotClient botClient, TextMessageHandler textMessageHandler,
-        ScheduleDbContext scheduleDbContext)
+    public TelegramBotService(ITelegramBotClient botClient, IServiceScopeFactory scopeFactory)
     {
         _botClient = botClient;
-        _textMessageHandler = textMessageHandler;
-        _scheduleDbContext = scheduleDbContext;
+        _scopeFactory = scopeFactory;
     }
-
+    
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var cts = new CancellationTokenSource();
-
         var receiverOptions = new ReceiverOptions
         {
             AllowedUpdates = Array.Empty<UpdateType>()
@@ -58,7 +54,11 @@ public class TelegramBotService : IHostedService
     private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
-        if (update.Message.Text != null) await _textMessageHandler.Handle(update.Message);
+        if (update.Message.Text != null)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<TextMessageHandler>().Handle(update.Message);
+        }
     }
 
     private static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception,

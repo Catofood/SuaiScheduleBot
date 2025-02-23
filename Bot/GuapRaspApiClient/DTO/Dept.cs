@@ -1,11 +1,13 @@
 using System.Text.Json.Serialization;
 
-namespace Bot.DTO;
+namespace Bot.GuapRaspApiClient.DTO;
 
 public record Dept
 {
-    [JsonPropertyName("ItemId")] public int ItemId;
-    [JsonPropertyName("Name")] public string Name;
+    [JsonPropertyName("ItemId")] 
+    public int ItemId;
+    [JsonPropertyName("Name")] 
+    public string Name;
 }
 
 

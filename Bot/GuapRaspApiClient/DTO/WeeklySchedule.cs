@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Bot.DTO;
+namespace Bot.GuapRaspApiClient.DTO;
 
-public record Schedule
+public record WeeklySchedule
 {
     [JsonPropertyName("monday")] public List<Event> Monday;
     [JsonPropertyName("tuesday")] public List<Event> Tuesday;

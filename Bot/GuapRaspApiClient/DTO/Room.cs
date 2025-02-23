@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Bot.DTO;
+namespace Bot.GuapRaspApiClient.DTO;
 public record Room
 {
     [JsonPropertyName("ItemId")] public int ItemId;

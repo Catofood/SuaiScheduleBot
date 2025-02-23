@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Bot.DTO;
+namespace Bot.GuapRaspApiClient.DTO;
 
 public record Building
 {

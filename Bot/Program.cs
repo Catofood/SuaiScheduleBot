@@ -25,6 +25,7 @@ internal class Program
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
         builder.Services.AddScoped<DbService>();
         builder.Services.AddScoped<TextMessageHandler>();
+        builder.Services.AddHttpClient<GuapRaspApiService>();
         builder.Build().Run();
     }
 }

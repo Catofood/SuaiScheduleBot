@@ -1,11 +1,14 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
-namespace Application.GuapRaspApiClient.DTO;
+namespace Application.Client.DTO;
 
-public class Department()
+public class Department
 {
-    [JsonPropertyName("ItemId")] public int ItemId;
-    [JsonPropertyName("Name")] public string Name;
+    [JsonProperty("ItemId")] 
+    public long ItemId;
+
+    [JsonProperty("Name")] 
+    public string Name;
 }
 
 // /get-sem-depts - получить список кафедр

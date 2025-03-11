@@ -1,22 +1,15 @@
-using System.Text.Json.Serialization;
-
-namespace Application.GuapRaspApiClient.DTO;
+namespace Application.DB.Entity;
 
 public class Version
 {
-    [JsonPropertyName("versionID")] public int VersionId;
-
-    [JsonPropertyName("version_main")] public int VersionMain;
-
-    [JsonPropertyName("version_session")] public int VersionSession;
-
-    [JsonPropertyName("version_zaoch")] public int VersionZaoch;
-
-    [JsonPropertyName("version_spo")] public int VersionSpo;
-
-    [JsonPropertyName("datetime")] public long DateTime;
-
-    [JsonPropertyName("term")] public int Term;
+    public long Id { get; set; }
+    public int VersionId { get; set; }
+    public int VersionMain { get; set; }
+    public int VersionSession { get; set; }
+    public int VersionZaoch { get; set; }
+    public int VersionSpo { get; set; }
+    public long DateTime { get; set; }
+    public int Term { get; set; }
 }
 
 

@@ -1,13 +1,18 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
-namespace Application.GuapRaspApiClient.DTO;
+namespace Application.Client.DTO;
+
 public class Room
 {
-    [JsonPropertyName("ItemId")] public int ItemId;
-    [JsonPropertyName("Name")] public string Name;
-    [JsonPropertyName("BuildingId")] public int BuildingId;
-}
+    [JsonProperty("ItemId")] 
+    public long ItemId;
 
+    [JsonProperty("Name")] 
+    public string Name;
+
+    [JsonProperty("BuildingId")] 
+    public long BuildingId;
+}
 
 // /get-sem-rooms - получить список аудиторий
 // Формат данных:

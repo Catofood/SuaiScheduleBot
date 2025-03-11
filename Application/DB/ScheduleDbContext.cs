@@ -1,6 +1,6 @@
-using Application.Services;
+using Application.DB.Entity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Version = Application.DB.Entity.Version;
 
 namespace Application.Db;
 
@@ -9,9 +9,13 @@ public class ScheduleDbContext : DbContext
     public ScheduleDbContext(DbContextOptions<ScheduleDbContext> options) : base(options)
     {
     }
-    public DbSet<Study> Studies { get; set; }
+
     public DbSet<User> Users { get; set; }
     public DbSet<Group> Groups { get; set; }
-    
-    public DbSet<CalendarEvent> CalendarEvents { get; set; }
+    public DbSet<Event> Events { get; set; }
+    public DbSet<Building> Buildings { get; set; }
+    public DbSet<Room> Rooms { get; set; }
+    public DbSet<Teacher> Teachers { get; set; }
+    public DbSet<Version> Versions { get; set; }
+    public DbSet<Department> Departments { get; set; }
 }

@@ -23,10 +23,10 @@ internal class Program
         builder.Services.AddHostedService<TelegramBotService>();
         builder.Services.AddDbContext<ScheduleDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-        builder.Services.AddScoped<DbService>();
         builder.Services.AddScoped<TextMessageHandler>();
         builder.Services.AddHttpClient();
-        builder.Services.AddScoped<GuapRaspApiService>();
+        builder.Services.AddScoped<Client.Client>();
+        builder.Services.AddScoped<Endpoints>();
         builder.Build().Run();
     }
 }

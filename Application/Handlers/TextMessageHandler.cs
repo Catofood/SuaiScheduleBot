@@ -11,14 +11,12 @@ namespace Application.Handlers;
 public class TextMessageHandler : IMessageHandler
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly GuapRaspApiService _guapRaspApiService;
+    private readonly Client.Client _client;
 
-    public TextMessageHandler(ITelegramBotClient botClient, IServiceScopeFactory scopeFactory, GuapRaspApiService guapRaspApiService)
+    public TextMessageHandler(ITelegramBotClient botClient, Client.Client client)
     {
         _botClient = botClient;
-        _scopeFactory = scopeFactory;
-        _guapRaspApiService = guapRaspApiService;
+        _client = client;
     }
 
     public async Task HandleMessage(Message message)
@@ -29,20 +27,7 @@ public class TextMessageHandler : IMessageHandler
         Console.WriteLine($"Received a message from {firstName} {message.Chat.Id}: {messageText}");
         var response = "";
         bool isAdmin;
-        if (messageText == "/test")
-        {
-            using (var scope = _scopeFactory.CreateScope())
-            {
-                
-                var api = scope.ServiceProvider.GetRequiredService<GuapRaspApiService>();
-                        
-                Console.WriteLine("Starting download");
-                var lol = await api.GetAllStudiesAsync();
-                Console.WriteLine($"Downloaded {lol.Count().ToString()} group schedules.");
-                Task.Delay(1000000000).Wait();
-
-            }
-        }
+        response = messageText;
         // using (var scope = _scopeFactory.CreateScope())
         // {
         //     var db = scope.ServiceProvider.GetRequiredService<ScheduleDbContext>();

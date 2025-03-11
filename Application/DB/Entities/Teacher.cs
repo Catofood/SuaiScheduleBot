@@ -1,14 +1,15 @@
-using System.Text.Json.Serialization;
+namespace Application.DB.Entity;
 
-namespace Application.GuapRaspApiClient.DTO;
-
-public class Teacher
+public class Teacher 
 {
-    [JsonPropertyName("ItemId")] public int ItemId;
-    [JsonPropertyName("Name")] public string Name;
-    [JsonPropertyName("Post")] public string Post;
-    [JsonPropertyName("Degree")] public string Degree;
-    [JsonPropertyName("AcademicTitle")] public string AcademicTitle;
+    public long Id { get; set; }
+    
+    public List<Event> Events { get; set; } = new();
+    
+    public string Name { get; set; } = string.Empty;
+    public string Post { get; set; } = string.Empty;
+    public string Degree { get; set; } = string.Empty;
+    public string AcademicTitle { get; set; } = string.Empty;
 }
 
 

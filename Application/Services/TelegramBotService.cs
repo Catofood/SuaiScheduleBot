@@ -1,5 +1,7 @@
+using Application.Client;
+using Application.Client.DTO;
 using Application.Handlers;
-using Application.Db;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
@@ -13,12 +15,14 @@ namespace Application.Services;
 public class TelegramBotService : IHostedService
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly TextMessageHandler _textMessageHandler;
+    private readonly GuapClient _guapClient;
 
-    public TelegramBotService(ITelegramBotClient botClient, IServiceScopeFactory scopeFactory)
+    public TelegramBotService(ITelegramBotClient botClient, TextMessageHandler textMessageHandler, GuapClient guapClient)
     {
         _botClient = botClient;
-        _scopeFactory = scopeFactory;
+        _textMessageHandler = textMessageHandler;
+        _guapClient = guapClient;
     }
     
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -27,9 +31,6 @@ public class TelegramBotService : IHostedService
         {
             AllowedUpdates = Array.Empty<UpdateType>()
         };
-
-        // await _dbService.ForceUpdateSchedule();
-
         _botClient.StartReceiving(
             HandleUpdateAsync,
             HandleErrorAsync,
@@ -37,9 +38,16 @@ public class TelegramBotService : IHostedService
             cancellationToken
         );
 
-        var botInfo = await _botClient.GetMe();
+        // TODO: Делаем все нужные запросы на API гуап и сохраняем данные в кэш
+        var buildings = await _guapClient.GetBuildings();
+        var rooms = await _guapClient.GetRooms();
+        var groups = await _guapClient.GetGroups();
+        var teachers = await _guapClient.GetTeachers();
+        var departments = await _guapClient.GetDepartments();
+        var version = await _guapClient.GetVersion();
+        
+        var botInfo = await _botClient.GetMe(cancellationToken: cancellationToken);
         Console.WriteLine($"Application {botInfo.Username} is running...");
-
         Console.ReadLine();
 
         await StopAsync(cancellationToken);
@@ -48,17 +56,13 @@ public class TelegramBotService : IHostedService
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         var cts = new CancellationTokenSource();
-        cts.Cancel();
+        await cts.CancelAsync();
     }
 
     private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
-        if (update.Message.Text != null)
-        {
-            using var scope = _scopeFactory.CreateScope();
-            await scope.ServiceProvider.GetRequiredService<TextMessageHandler>().HandleMessage(update.Message);
-        }
+        await _textMessageHandler.HandleMessage(update.Message);
     }
 
     private static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception,

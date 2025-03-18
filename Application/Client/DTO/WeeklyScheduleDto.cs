@@ -2,22 +2,22 @@ using Newtonsoft.Json;
 
 namespace Application.Client.DTO;
 
-public class WeeklySchedule
+public class WeeklyScheduleDto
 {
     [JsonProperty("monday")] 
-    public List<Event> Monday;
+    public List<EventDto> Monday = new();
     [JsonProperty("tuesday")] 
-    public List<Event> Tuesday;
+    public List<EventDto> Tuesday = new();
     [JsonProperty("wednesday")] 
-    public List<Event> Wednesday;
+    public List<EventDto> Wednesday = new();
     [JsonProperty("thursday")] 
-    public List<Event> Thursday;
+    public List<EventDto> Thursday = new();
     [JsonProperty("friday")] 
-    public List<Event> Friday;
+    public List<EventDto> Friday = new();
     [JsonProperty("saturday")] 
-    public List<Event> Saturday;
+    public List<EventDto> Saturday = new();
     [JsonProperty("other")] 
-    public List<Event> Other;
+    public List<EventDto> Other = new();
 }
 
 

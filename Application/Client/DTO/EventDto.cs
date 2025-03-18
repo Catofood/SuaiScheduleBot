@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Application.Client.DTO;
 
-public class Event 
+public class EventDto 
 {
     [JsonProperty("eventName")] 
     public string EventName;
@@ -11,9 +11,9 @@ public class Event
     [JsonProperty("eventDateEnd")] 
     public long? EventDateEnd;
     [JsonProperty("roomIds")] 
-    public List<long> RoomIds;
+    public List<long> RoomIds = new();
     [JsonProperty("teacherIds")] 
-    public List<long> TeacherIds;
+    public List<long> TeacherIds = new();
     [JsonProperty("departmentId")] 
     public long DepartmentId;
     [JsonProperty("eventType")] 

@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Application.Client.DTO;
 
-public class Group
+public class GroupDto
 {
     [JsonProperty("Name")] 
     public string Name;

@@ -1,24 +1,14 @@
-using Newtonsoft.Json;
-
-namespace Application.Client.DTO;
+namespace Application.Cache.Entities;
 
 public class Teacher 
 {
-    [JsonProperty("ItemId")] 
-    public long ItemId;
-
-    [JsonProperty("Name")] 
-    public string Name;
-
-    [JsonProperty("Post")] 
-    public string Post;
-
-    [JsonProperty("Degree")] 
-    public string Degree;
-
-    [JsonProperty("AcademicTitle")] 
-    public string AcademicTitle;
+    public long Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Post { get; set; } = string.Empty;
+    public string Degree { get; set; } = string.Empty;
+    public string AcademicTitle { get; set; } = string.Empty;
 }
+
 
 // /get-sem-teachers - получить список преподавателей
 // Формат:

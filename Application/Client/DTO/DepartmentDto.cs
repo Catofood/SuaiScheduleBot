@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Application.Client.DTO;
 
-public class Department
+public class DepartmentDto
 {
     [JsonProperty("ItemId")] 
     public long ItemId;

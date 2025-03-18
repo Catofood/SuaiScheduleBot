@@ -1,19 +1,31 @@
-namespace Application.DB.Entity;
+using Newtonsoft.Json;
 
-public class Version
+namespace Application.Client.DTO;
+
+public class VersionDto
 {
-    public long Id { get; set; }
-    public int VersionId { get; set; }
-    public int VersionMain { get; set; }
-    public int VersionSession { get; set; }
-    public int VersionZaoch { get; set; }
-    public int VersionSpo { get; set; }
-    public long DateTime { get; set; }
-    public int Term { get; set; }
+    [JsonProperty("versionID")] 
+    public int VersionId;
+
+    [JsonProperty("version_main")] 
+    public int VersionMain;
+
+    [JsonProperty("version_session")] 
+    public int VersionSession;
+
+    [JsonProperty("version_zaoch")] 
+    public int VersionZaoch;
+
+    [JsonProperty("version_spo")] 
+    public int VersionSpo;
+
+    [JsonProperty("datetime")] 
+    public long DateTime;
+
+    [JsonProperty("term")] 
+    public int Term;
 }
 
-
-// [GET]
 // /get-version - получить данные о текущей версии расписания
 // Формат:
 // {

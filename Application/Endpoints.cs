@@ -1,43 +1,41 @@
+using System.Text;
 using Microsoft.Extensions.Configuration;
 
 namespace Application;
 
 // Предназначение класса: Возвращать эндпоинты расписания ГУАП
-public class Endpoints
+public static class Endpoints
 {
-    private readonly string DirectoryName = "Endpoints";
-    private readonly IConfiguration _config;
+    private const string BaseUrl = "https://test-rasp.guap.ru:8080";
+    public const string Version = BaseUrl + "/get-version?";
+    public const string Rooms = BaseUrl + "/get-sem-rooms?";
+    public const string Buildings = BaseUrl + "/get-sem-builds?";
+    public const string Departments = BaseUrl + "/get-sem-depts?";
+    public const string Teachers = BaseUrl + "/get-sem-teachers?";
+    public const string Groups = BaseUrl + "/get-sem-groups?";
+    private const string AllStudyEvents = BaseUrl + "/get-sem-events?";
+    private const string AllExamEvents = BaseUrl + "/get-session-events?";
+    private const string GroupStudyEvents = BaseUrl + "/get-sem-group-events?";
+    private const string GroupExamEvents = BaseUrl + "/get-session-group-events?";
 
-    public Endpoints(IConfiguration config)
+    public static string GetStudyEvents(long? groupId = null, DateTimeOffset? startDate = null, DateTimeOffset? endDate = null)
     {
-        _config = config;
+        if (groupId == null) return AllStudyEvents + CreateQuery(startDate: startDate, endDate: endDate);
+        return GroupStudyEvents + CreateQuery(groupId, startDate, endDate);
     }
 
-    private string GetPath(string? endpoint)
+    public static string GetExamEvents(long? groupId = null, DateTimeOffset? startDate = null, DateTimeOffset? endDate = null)
     {
-        var route = _config[$"{DirectoryName}:{endpoint}"];
-        if (string.IsNullOrEmpty(endpoint))
-            throw new Exception(
-                $"Failed to retrieve the API URL from the configuration. Make sure the '{DirectoryName}:{endpoint}' key is present in appsettings.json.");
-        var result = GetBaseApiUrl() + route;
-        return result;
+        if (groupId == null) return AllExamEvents + CreateQuery(startDate: startDate, endDate: endDate);
+        return GroupExamEvents + CreateQuery(groupId, startDate, endDate);
     }
 
-    private string GetBaseApiUrl()
+    private static string CreateQuery(long? groupId = null, DateTimeOffset? startDate = null, DateTimeOffset? endDate = null)
     {
-        var url = _config[$"{DirectoryName}:Url"];
-        if (string.IsNullOrEmpty(url))
-            throw new Exception(
-                $"Failed to retrieve the API URL from the configuration. Make sure the '{DirectoryName}:Url' key is present in appsettings.json.");
-        return url;
+        var stringBuilder = new StringBuilder();
+        if (groupId.HasValue) stringBuilder.Append($"&id={groupId}");
+        if (startDate.HasValue) stringBuilder.Append($"&startdate={startDate.Value.ToUnixTimeSeconds()}");
+        if (endDate.HasValue) stringBuilder.Append($"&enddate={endDate.Value.ToUnixTimeSeconds()}");
+        return stringBuilder.ToString();
     }
-
-    public string Version => GetPath("Version");
-    public string Rooms => GetPath("Rooms");
-    public string Buildings => GetPath("Buildings");
-    public string Departments => GetPath("Departments");
-    public string Teachers => GetPath("Teachers");
-    public string Groups => GetPath("Groups");
-    public string StudyEvents => GetPath("StudyEvents");
-    public string ExamEvents => GetPath("ExamEvents");
 }

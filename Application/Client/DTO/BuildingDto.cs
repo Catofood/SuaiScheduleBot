@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Application.Client.DTO;
 
-public class Building 
+public class BuildingDto 
 {
     [JsonProperty("Name")] 
     public string Name;

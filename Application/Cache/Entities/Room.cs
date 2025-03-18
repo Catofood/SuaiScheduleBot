@@ -1,18 +1,11 @@
-using Newtonsoft.Json;
+namespace Application.Cache.Entities;
 
-namespace Application.Client.DTO;
-
-public class Room
+public class Room 
 {
-    [JsonProperty("ItemId")] 
-    public long ItemId;
-
-    [JsonProperty("Name")] 
-    public string Name;
-
-    [JsonProperty("BuildingId")] 
-    public long BuildingId;
+    public string Name { get; set; } = string.Empty;
+    public long BuildingId { get; set; }
 }
+
 
 // /get-sem-rooms - получить список аудиторий
 // Формат данных:

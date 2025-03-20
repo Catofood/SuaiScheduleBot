@@ -5,11 +5,11 @@ namespace Application.Client.DTO;
 public class BuildingDto 
 {
     [JsonProperty("Name")] 
-    public string Name;
+    public string Name { get; set; }
     [JsonProperty("Title")] 
-    public string Title;
+    public string Title{ get; set; }
     [JsonProperty("ItemId")] 
-    public long ItemId;
+    public long ItemId{ get; set; }
 }
 
 // /get-sem-builds?ids=<id1_>,<id2_>,<id3_>... - получить список корпусов

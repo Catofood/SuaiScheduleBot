@@ -1,4 +1,5 @@
 using Application.Cache.Entities;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using Version = Application.Cache.Entities.Version;
@@ -8,14 +9,24 @@ namespace Application.Cache;
 public class CacheRepository // : ICacheRepository
 {
     readonly IDatabase _db;
-    public CacheRepository(IConnectionMultiplexer redis)
+    public CacheRepository(IConnectionMultiplexer connection)
     {
-        _db = redis.GetDatabase();
+        _db = connection.GetDatabase();
     }
 
-    public async Task SetBuildingName(string name, long id)
+    public async Task FlushDb()
     {
-        await _db.StringSetAsync($"building:{id}", name);
+        await _db.ExecuteAsync("FLUSHDB");
+    }
+    
+    public async Task SetBuildingName(long id, string buildingName)
+    {
+        await _db.StringSetAsync($"building:{id}", buildingName);
+    }
+    
+    public async Task SetBuildingNames(Dictionary<long, string> buildingNames)
+    {
+        foreach (var kv in buildingNames) await SetBuildingName(kv.Key, kv.Value);
     }
     
     public async Task<string?> GetBuildingName(long id)
@@ -24,9 +35,14 @@ public class CacheRepository // : ICacheRepository
         return data.ToString();
     }
 
-    public async Task SetRoom(Room room, long id)
+    public async Task SetRoom(long id, Room room)
     {
         await _db.StringSetAsync($"room:{id}", JsonConvert.SerializeObject(room));
+    }
+
+    public async Task SetRooms(Dictionary<long, Room> rooms)
+    {
+        foreach (var kv in rooms) await SetRoom(kv.Key, kv.Value);
     }
     
     public async Task<Room?> GetRoom(long id)
@@ -35,9 +51,14 @@ public class CacheRepository // : ICacheRepository
         return data.HasValue ? JsonConvert.DeserializeObject<Room>(data.ToString()) : null;
     }
 
-    public async Task SetDepartmentName(string name, long id)
+    public async Task SetDepartmentName(long id, string departmentName)
     {
-        await _db.StringSetAsync($"department:{id}", name);
+        await _db.StringSetAsync($"department:{id}", departmentName);
+    }
+
+    public async Task SetDepartmentNames(Dictionary<long, string> departmentNames)
+    {
+        foreach (var kv in departmentNames) await SetDepartmentName(kv.Key, kv.Value);
     }
 
     public async Task<string?> GetDepartmentName(long id)
@@ -48,18 +69,28 @@ public class CacheRepository // : ICacheRepository
 
     public async Task SetGroupId(string name, long id)
     {
-        await _db.StringSetAsync($"group:{name}", id);
+        await _db.StringSetAsync($"group:{name.ToLowerRussian()}", id);
     }
-    
+
+    public async Task SetGroupIds(Dictionary<string, long> idByNames)
+    {
+        foreach (var kv in idByNames) await SetGroupId(kv.Key, kv.Value);
+    }
+
     public async Task<long?> GetGroupId(string name)
     {
-        var data = await _db.StringGetAsync($"group:{name}");
+        var data = await _db.StringGetAsync($"group:{name.ToLowerRussian()}");
         return data.HasValue ? long.Parse(data.ToString()) : null;
     }
 
-    public async Task SetTeacher(Teacher teacher, long id)
+    public async Task SetTeacher(long id, Teacher teacher)
     {
         await _db.StringSetAsync($"teacher:{id}", JsonConvert.SerializeObject(teacher));
+    }
+
+    public async Task SetTeachers(Dictionary<long, Teacher> teachers)
+    {
+        foreach (var kv in teachers) await SetTeacher(kv.Key, kv.Value);
     }
 
     public async Task<Teacher?> GetTeacher(long id)

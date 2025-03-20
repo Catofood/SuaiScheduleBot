@@ -2,7 +2,6 @@ namespace Application.Cache.Entities;
 
 public class Teacher 
 {
-    public long Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Post { get; set; } = string.Empty;
     public string Degree { get; set; } = string.Empty;

@@ -65,13 +65,13 @@ public class GuapClient
         return version;
     }
     
-    public async Task<Dictionary<long, WeeklyScheduleDto>> GetGroupExamEvents(long groupId, DateTimeOffset? startdate = null, DateTimeOffset? enddate = null)
+    public async Task<WeeklyScheduleDto> GetGroupExamEvents(long groupId, DateTimeOffset? startdate = null, DateTimeOffset? enddate = null)
     {
         var json = await GetDataAsync(Endpoints.GetExamEvents(groupId, startdate, enddate));
         return await ParseGroupEventsAsync(json);
     }
 
-    public async Task<Dictionary<long, WeeklyScheduleDto>> GetGroupStudyEvents(long groupId, DateTimeOffset? startdate = null, DateTimeOffset? enddate = null)
+    public async Task<WeeklyScheduleDto> GetGroupStudyEvents(long groupId, DateTimeOffset? startdate = null, DateTimeOffset? enddate = null)
     {
         var json = await GetDataAsync(Endpoints.GetStudyEvents(groupId, startdate, enddate));
         return await ParseGroupEventsAsync(json);
@@ -94,9 +94,9 @@ public class GuapClient
         var jsonStr = await GetDataAsync(endpoint);
         return JToken.Parse(jsonStr)["groups"]?.ToObject<Dictionary<long, WeeklyScheduleDto>>() ?? new();
     }
-    private async Task<Dictionary<long, WeeklyScheduleDto>> ParseGroupEventsAsync(string json)
+    private async Task<WeeklyScheduleDto> ParseGroupEventsAsync(string json)
     {
-        return JToken.Parse(json).ToObject<Dictionary<long, WeeklyScheduleDto>>() ?? new();
+        return JToken.Parse(json).ToObject<WeeklyScheduleDto>() ?? new();
     }
     
 }

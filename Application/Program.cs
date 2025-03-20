@@ -1,7 +1,7 @@
 ﻿using Application.Cache;
 using Application.Client;
-using Application.Handlers;
 using Application.Mapping;
+using Application.Services;
 using Application.Storage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -20,8 +20,6 @@ internal class Program
         
         builder.Configuration.AddUserSecrets<Program>();
         
-        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
-        
         builder.Services.AddTransient<ITelegramBotClient, TelegramBotClient>(provider =>
         {
             var token = builder.Configuration["TelegramBot:Token"];
@@ -29,15 +27,16 @@ internal class Program
         });
         
         builder.Services.AddHostedService<TelegramBotService>();
-        builder.Services.AddAutoMapper(typeof(DtoToCacheEntitiesMapping));
-        builder.Services.AddSingleton<CacheRepository>();
+        builder.Services.AddAutoMapper(typeof(DtoToCacheEntitiesProfile));
+        builder.Services.AddSingleton<CacheService>();
         builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
             ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
         builder.Services.AddDbContext<DbContext, ScheduleDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
         builder.Services.AddHttpClient();
-        builder.Services.AddTransient<TextMessageHandler>();
-        builder.Services.AddTransient<GuapClient>();
+        builder.Services.AddTransient<TextMessageHandleService>();
+        builder.Services.AddTransient<SuaiClient>();
+        builder.Services.AddTransient<AsyncMapperService>();
         
         builder.Build().Run();
     }

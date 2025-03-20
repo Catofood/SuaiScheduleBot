@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Application.Cache.Entities;
 using Application.Client.DTO;
 using Version = Application.Cache.Entities.Version;
@@ -6,15 +7,28 @@ namespace Application.Mapping;
 
 using AutoMapper;
 
-public class DtoToCacheEntitiesMapping : Profile
+public class DtoToCacheEntitiesProfile : Profile
 {
-    public DtoToCacheEntitiesMapping()
+    public DtoToCacheEntitiesProfile()
     {
+        CreateMap<WeeklyScheduleDto, List<EventDto>>()
+            .ConvertUsing(src => 
+                new List<EventDto>()
+                .Concat(src.Monday)
+                .Concat(src.Tuesday)
+                .Concat(src.Wednesday)
+                .Concat(src.Thursday)
+                .Concat(src.Friday)
+                .Concat(src.Saturday)
+                .Concat(src.Other)
+                .ToList());
+        
         CreateMap<List<BuildingDto>, Dictionary<long, string>>()
             .ConvertUsing(src => src
                 .ToDictionary(
                 building => building.ItemId, 
-                building => building.Name));
+                building => building.Name)
+            );
         
         CreateMap<List<RoomDto>, Dictionary<long, Room>>()
             .ConvertUsing(src => src
@@ -24,7 +38,8 @@ public class DtoToCacheEntitiesMapping : Profile
                     {
                         Name = room.Name, 
                         BuildingId = room.BuildingId
-                    }));
+                    })
+            );
         
         CreateMap<List<GroupDto>, Dictionary<string, long>>()
             .ConvertUsing(src => src
@@ -42,7 +57,8 @@ public class DtoToCacheEntitiesMapping : Profile
                         .Replace('p', 'р')
                         .Replace('x', 'ч')
                         .Replace('b', 'в'),
-                    group => group.ItemId));
+                    group => group.ItemId)
+            );
         
         CreateMap<List<TeacherDto>, Dictionary<long, Teacher>>()
             .ConvertUsing(src => src
@@ -54,14 +70,15 @@ public class DtoToCacheEntitiesMapping : Profile
                         AcademicTitle = teacher.AcademicTitle,
                         Degree = teacher.Degree,
                         Post = teacher.Post 
-                    }));
+                    })
+            );
         
         CreateMap<List<DepartmentDto>, Dictionary<long, string>>()
-            .ConvertUsing(
-                src => src
+            .ConvertUsing(src => src
                     .ToDictionary(
                         department => department.ItemId, 
-                        department => department.Name));
+                        department => department.Name)
+            );
         
         CreateMap<VersionDto, Version>();
     }

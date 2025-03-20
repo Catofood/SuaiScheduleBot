@@ -1,6 +1,6 @@
 namespace Application.Cache.Entities;
 
-public class Room 
+public class Room
 {
     public string Name { get; set; } = string.Empty;
     public long BuildingId { get; set; }

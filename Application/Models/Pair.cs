@@ -2,19 +2,17 @@ namespace Application.Models;
 
 public class Pair
 {
-    public required string Room;
-    public required string Building;
+    public string? Room = string.Empty;
+    public string? Building = string.Empty;
 
-    public required string PairNumber;
-    public required string EventTimeStart;
-    public required string EventTimeEnd;
+    public DateTimeOffset? PairStartTime;
     
-    public required string EventType;
-    public required string EventName;
+    public string? EventType = string.Empty;
+    public string? EventName = string.Empty;
     
-    public required string TeacherName;
-    public required string TeacherPost;
+    public string? TeacherName = string.Empty;
+    public string? TeacherPost = string.Empty;
     
-    public required List<string> GroupNames;
+    public string? DepartmentName = string.Empty;
 }
 

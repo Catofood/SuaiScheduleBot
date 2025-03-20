@@ -1,4 +1,7 @@
 using Application.Cache.Entities;
+using Application.Client;
+using Application.Extensions;
+using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StackExchange.Redis;
@@ -6,11 +9,15 @@ using Version = Application.Cache.Entities.Version;
 
 namespace Application.Cache;
 
-public class CacheRepository // : ICacheRepository
+public class CacheService // : ICacheRepository
 {
     readonly IDatabase _db;
-    public CacheRepository(IConnectionMultiplexer connection)
+    readonly SuaiClient _suaiClient;
+    readonly IMapper _mapper;
+    public CacheService(IConnectionMultiplexer connection, SuaiClient suaiClient, IMapper mapper)
     {
+        _suaiClient = suaiClient;
+        _mapper = mapper;
         _db = connection.GetDatabase();
     }
 
@@ -108,5 +115,55 @@ public class CacheRepository // : ICacheRepository
     {
         var data = await _db.StringGetAsync("version");
         return data.HasValue ? JsonConvert.DeserializeObject<Version>(data.ToString()) : null;
+    }
+    
+    // Этот метод ПОЛНОСТЬЮ очищает redis, затем выполняет запросы на апи гуап и сохраняет данные в redis
+    public async Task UpdateCache()
+    {
+        await FlushDb();
+        await Task.WhenAll(DoBuildings(), DoRooms(), DoGroups(), DoTeachers(), DoDepartments(), DoVersion());
+        // Делаем все нужные запросы на API гуап и сохраняем данные в кэш
+        async Task DoBuildings()
+        {
+            var buildingDtos = await _suaiClient.GetBuildings();
+            var buildingEntities = _mapper.Map<Dictionary<long, string>>(buildingDtos);
+            await SetBuildingNames(buildingEntities);
+        }
+
+        async Task DoRooms()
+        {
+            var roomsDtos = await _suaiClient.GetRooms();
+            var roomEntities = _mapper.Map<Dictionary<long, Room>>(roomsDtos);
+            await SetRooms(roomEntities);
+        }
+
+        async Task DoGroups()
+        {
+            var groupDtos = await _suaiClient.GetGroups();
+            var groupEntities = _mapper.Map<Dictionary<string, long>>(groupDtos);
+            await SetGroupIds(groupEntities);
+        }
+
+        async Task DoTeachers()
+        {
+            var teacherDtos = await _suaiClient.GetTeachers();
+            var teacherEntities = _mapper.Map<Dictionary<long, Teacher>>(teacherDtos);
+            await SetTeachers(teacherEntities);
+        }
+
+
+        async Task DoDepartments()
+        {
+            var departmentDtos = await _suaiClient.GetDepartments();
+            var departmentEntities = _mapper.Map<Dictionary<long, string>>(departmentDtos);
+            await SetDepartmentNames(departmentEntities);
+        }
+
+        async Task DoVersion()
+        {
+            var versionDto = await _suaiClient.GetVersion();
+            var versionEntity = _mapper.Map<Cache.Entities.Version>(versionDto);
+            await SetVersion(versionEntity);
+        }
     }
 }

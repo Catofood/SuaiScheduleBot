@@ -6,9 +6,9 @@ using Newtonsoft.Json.Linq;
 namespace Application.Client;
 
 
-public class GuapClient 
+public class SuaiClient 
 {
-    public GuapClient(IHttpClientFactory httpClientFactory)
+    public SuaiClient(IHttpClientFactory httpClientFactory)
     {
         _httpClient = httpClientFactory.CreateClient();
     }

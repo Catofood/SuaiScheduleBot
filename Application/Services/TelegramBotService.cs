@@ -1,5 +1,4 @@
-using Application.Commands;
-using MediatR;
+using Application.Cache;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Telegram.Bot;
@@ -7,19 +6,22 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using UpdateCacheCommand = Application.Commands.UpdateCacheCommand;
 
-namespace Application;
+namespace Application.Services;
 
 public class TelegramBotService : IHostedService
 {
     private readonly ITelegramBotClient _botClient;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly CacheService _cacheService;
+    private readonly TextMessageHandleService _textMessageHandleService;
 
-    public TelegramBotService(ITelegramBotClient botClient, IServiceScopeFactory scopeFactory)
+    public TelegramBotService(ITelegramBotClient botClient, IServiceScopeFactory scopeFactory, CacheService cacheService, TextMessageHandleService textMessageHandleService)
     {
         _botClient = botClient;
         _scopeFactory = scopeFactory;
+        _cacheService = cacheService;
+        _textMessageHandleService = textMessageHandleService;
     }
     
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -35,13 +37,8 @@ public class TelegramBotService : IHostedService
             cancellationToken
         );
         
-        // await UpdateCache();
-        using (var scope = _scopeFactory.CreateScope())
-        {
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            await mediator.Send(new UpdateCacheCommand(), cancellationToken);
-        }
-        
+
+        await _cacheService.UpdateCache();
         
         var botInfo = await _botClient.GetMe(cancellationToken: cancellationToken);
         Console.WriteLine($"Application {botInfo.Username} is running...");
@@ -52,11 +49,7 @@ public class TelegramBotService : IHostedService
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        using (var scope = _scopeFactory.CreateScope())
-        {
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            await mediator.Send(new FlushCacheCommand(), cancellationToken);
-        }
+        await _cacheService.FlushDb();
 
         var cts = new CancellationTokenSource();
         await cts.CancelAsync();
@@ -65,10 +58,7 @@ public class TelegramBotService : IHostedService
     private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
-        using var scope = _scopeFactory.CreateScope();
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        if (update.Message != null)
-            await mediator.Send(new HandleTextMessageCommand(update.Message), cancellationToken);
+        if (update.Message != null) await _textMessageHandleService.HandleMessage(update.Message);
     }
 
     private static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception,

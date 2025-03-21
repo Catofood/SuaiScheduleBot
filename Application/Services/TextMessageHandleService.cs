@@ -19,8 +19,9 @@ public class TextMessageHandleService
     private readonly SuaiClient _suaiClient;
     private readonly IMapper _mapper;
     private readonly AsyncMapperService _asyncMapperService;
+    private readonly TextGenerationService _textGenerationService;
 
-    public TextMessageHandleService(ITelegramBotClient botClient, CacheService cacheService, ScheduleDbContext scheduleDbContext, SuaiClient suaiClient, IMapper mapper, AsyncMapperService asyncMapperService)
+    public TextMessageHandleService(ITelegramBotClient botClient, CacheService cacheService, ScheduleDbContext scheduleDbContext, SuaiClient suaiClient, IMapper mapper, AsyncMapperService asyncMapperService, TextGenerationService textGenerationService)
     {
         _botClient = botClient;
         _cacheService = cacheService;
@@ -28,6 +29,7 @@ public class TextMessageHandleService
         _suaiClient = suaiClient;
         _mapper = mapper;
         _asyncMapperService = asyncMapperService;
+        _textGenerationService = textGenerationService;
     }
 
     public async Task HandleMessage(Message message)
@@ -60,8 +62,6 @@ public class TextMessageHandleService
             }
             else
             {
-                // TODO: Делаем запрос на получение данных на нужный промежуток времени и
-                
                 var groupId = await _cacheService.GetGroupId(userMessageText);
                 if (groupId == null)
                 {
@@ -71,17 +71,19 @@ public class TextMessageHandleService
                 {
                     var weeklyScheduleDto = await _suaiClient.GetGroupStudyEvents(groupId.GetValueOrDefault(), DateTimeOffset.Now.LocalDateTime, DateTimeOffset.MaxValue);
                     var events = _mapper.Map<List<EventDto>>(weeklyScheduleDto);
-                    
                     var pairs = (await _asyncMapperService
                         .ConvertEventDtosToPairs(events))
+                        .Where(x => x.PairStartTime.HasValue)
                         .OrderBy(x => x.PairStartTime)
-                        .ToList();
-                    
-                    var groups = pairs.Where(x => x.PairStartTime != null)
-                        .GroupBy(x => x.PairStartTime!.Value.Date)
-                        .ToDictionary(x => x.Key.DayOfYear, x => x.ToList());
-                    
-                    await _botClient.SendMessage(userTelegramId, $"До сессии осталось {pairs.Count} пар или {groups.Count} учебных дней");
+                        .GroupBy(x => x.PairStartTime!.Value.DayOfYear) // Берем первые 7 предстоящих учебных дней
+                        .Take(7) 
+                        .SelectMany(x => x)
+                        .ToList(); 
+                    var textResponses = await _textGenerationService.Generate(pairs);
+                    foreach (var text in textResponses)
+                    {
+                        await _botClient.SendMessage(userTelegramId, text);
+                    }
                 }
             }
     }

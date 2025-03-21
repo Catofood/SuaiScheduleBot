@@ -2,7 +2,7 @@ namespace Application.Extensions;
 
 public static class DayOfWeekExtensions
 {
-    static string ToString(this DayOfWeek dayOfWeek, bool useShortFormat = false)
+    public static string ToStringRussian(this DayOfWeek dayOfWeek, bool useShortFormat = false)
     {
         if (useShortFormat)
         {

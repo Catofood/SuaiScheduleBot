@@ -34,9 +34,10 @@ internal class Program
         builder.Services.AddDbContext<DbContext, ScheduleDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
         builder.Services.AddHttpClient();
-        builder.Services.AddTransient<TextMessageHandleService>();
         builder.Services.AddTransient<SuaiClient>();
+        builder.Services.AddTransient<TextMessageHandleService>();
         builder.Services.AddTransient<AsyncMapperService>();
+        builder.Services.AddTransient<TextGenerationService>();
         
         builder.Build().Run();
     }

@@ -31,8 +31,15 @@ public class TextGenerationService
         strBuilder.AppendLine();
         foreach (var group in sortedGroupsByDay)
         {
-            string day = group.Value.FirstOrDefault()!.PairStartTime!.Value.ToLocalTime().DayOfWeek.ToStringRussian();
-            strBuilder.AppendLine(day);
+            string day;
+            string date;
+            {
+                var time = group.Value.FirstOrDefault()!.PairStartTime!.Value.ToLocalTime();
+                day = time.DayOfWeek.ToStringRussian();
+                date = time.ToString("dd.MM");
+            }
+            strBuilder.AppendLine($"{day} - {date}");
+            strBuilder.AppendLine();
             foreach (var pair in group.Value)
             {
                 var time = pair.PairStartTime!.Value.ToLocalTime();
